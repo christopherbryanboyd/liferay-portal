@@ -9,9 +9,9 @@ task unzipPortalCommonCSS(type: Copy)
 sourceCompatibility = "1.8"
 targetCompatibility = "1.8"
 
-def repoPath = new File('./src/test/resources/com/liferay/css/builder/maven/repo/').getAbsolutePath().toString()
+def repoPath = new File('./build/repo/').getAbsolutePath().toString()
 
-File mavenWrapperPropertiesFile = file("src/main/resources/maven-wrapper/.mvn/wrapper/maven-wrapper.properties")
+File mavenWrapperPropertiesFile = file("src/test/resources/maven-wrapper/.mvn/wrapper/maven-wrapper.properties")
 
 Properties mavenWrapperProperties = GUtil.loadProperties(mavenWrapperPropertiesFile)
 
@@ -111,12 +111,8 @@ test {
 		systemProperty "maven.distribution.file.name", configurations.mavenDistribution.singleFile
 	}
 
-	systemProperty 'cssbuilder.repolocation', "${repoPath}"
-	systemProperty 'cssbuilder.version', "${version}"
-
-	doLast {
-		delete repoPath
-	}
+	systemProperty 'repoPath', "${repoPath}"
+	systemProperty 'version', "${version}"
 }
 
 unzipPortalCommonCSS {

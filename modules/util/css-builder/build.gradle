@@ -39,10 +39,10 @@ copyPortalCommonCSSJar {
 }
 
 configurations {
-	mavenDistribution
 	mavenCompile {
 		extendsFrom compile
 	}
+	mavenDistribution
 }
 
 dependencies {
@@ -83,20 +83,18 @@ publish {
 publishing {
 	publications {
 		maven(MavenPublication) {
-
 			groupId 'com.liferay'
 			artifactId jar.baseName
 			version "${version}"
 			from components.java
 		}
 	}
+
 	repositories {
 		maven {
-
 			url uri(repoPath)
 		}
 	}
-
 }
 
 test {

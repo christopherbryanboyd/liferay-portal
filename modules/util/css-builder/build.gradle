@@ -9,8 +9,6 @@ task unzipPortalCommonCSS(type: Copy)
 sourceCompatibility = "1.8"
 targetCompatibility = "1.8"
 
-def repoPath = new File('./build/repo/').getAbsolutePath().toString()
-
 File mavenWrapperPropertiesFile = file("src/test/resources/maven-wrapper/.mvn/wrapper/maven-wrapper.properties")
 
 Properties mavenWrapperProperties = GUtil.loadProperties(mavenWrapperPropertiesFile)

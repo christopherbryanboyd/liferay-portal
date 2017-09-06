@@ -7,7 +7,6 @@
 	<version>1.0.0</version>
 	<packaging>jar</packaging>
 	<build>
-		<finalName>com.liferay.css.builder.maven.mojo-test-${project.version}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>com.liferay</groupId>

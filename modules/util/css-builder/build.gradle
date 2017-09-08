@@ -93,7 +93,7 @@ publishing {
 
 	repositories {
 		maven {
-			url uri(repoPath)
+			url uri(testRepoPath)
 		}
 	}
 }
@@ -107,7 +107,7 @@ test {
 		systemProperty "maven.distribution.file.name", configurations.mavenDistribution.singleFile
 	}
 
-	systemProperty 'repoPath', "${repoPath}"
+	systemProperty 'testRepoPath', "${testRepoPath}"
 	systemProperty 'version', "${version}"
 }
 

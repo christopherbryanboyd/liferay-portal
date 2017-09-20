@@ -1,7 +1,6 @@
 import com.liferay.gradle.util.copy.StripPathSegmentsAction
 
 apply plugin: "com.liferay.maven.plugin.builder"
-apply plugin: "maven-publish"
 
 task copyPortalCommonCSSJar(type: Copy)
 task unzipPortalCommonCSS(type: Copy)
@@ -76,39 +75,16 @@ liferay {
 	deployDir = "../../../tools/sdk/dependencies/com.liferay.css.builder/lib"
 }
 
-publish {
-	dependsOn buildPluginDescriptor
-	dependsOn jar
-}
-
-publishing {
-	publications {
-		maven(MavenPublication) {
-			groupId 'com.liferay'
-			artifactId jar.baseName
-			version "${version}"
-			from components.java
-		}
-	}
-
-	repositories {
-		maven {
-			url uri(testRepoPath)
-		}
-	}
-}
-
 test {
+	dependsOn install
 	dependsOn copyPortalCommonCSSJar
-	dependsOn publish
 	dependsOn unzipPortalCommonCSS
 
 	doFirst {
 		systemProperty "maven.distribution.file.name", configurations.mavenDistribution.singleFile
 	}
 
-	systemProperty 'testRepoPath', "${testRepoPath}"
-	systemProperty 'version', "${version}"
+	systemProperty "css.builder.version", jar.version
 }
 
 unzipPortalCommonCSS {

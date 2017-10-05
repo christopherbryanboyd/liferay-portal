@@ -31,7 +31,6 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -91,11 +90,18 @@ public class CSSBuilderTest {
 
 		_changeContentInPath(fragmentFileToChange, "brown", "khaki");
 
-		try (CSSBuilder cssBuilder = new CSSBuilder(
-				_docrootDirName, false, ".sass-cache/",
-				_PORTAL_COMMON_CSS_DIR_NAME, 6, new String[0], "jni")) {
+		CSSBuilderArgs args = new CSSBuilderArgs();
 
-			cssBuilder.execute(Arrays.asList(new String[] {"/css"}));
+		args.setDocrootDir(new File(_docrootDirName));
+		args.setGenerateSourceMap(false);
+		args.setOutputDirName(".sass-cache/");
+		args.setPortalCommonPath(_PORTAL_COMMON_CSS_DIR_NAME);
+		args.setPrecision(6);
+		args.setSassCompilerClassName("jni");
+		args.setDirNames("/css");
+
+		try (CSSBuilder cssBuilder = new CSSBuilder(args)) {
+			cssBuilder.execute();
 		}
 
 		String outputCssFilePath =
@@ -105,11 +111,8 @@ public class CSSBuilderTest {
 
 		_changeContentInPath(fragmentFileToChange, "khaki", "brown");
 
-		try (CSSBuilder cssBuilder = new CSSBuilder(
-				_docrootDirName, false, ".sass-cache/",
-				_PORTAL_COMMON_CSS_DIR_NAME, 6, new String[0], "jni")) {
-
-			cssBuilder.execute(Arrays.asList(new String[] {"/css"}));
+		try (CSSBuilder cssBuilder = new CSSBuilder(args)) {
+			cssBuilder.execute();
 		}
 
 		outputCssFileContent = _read(outputCssFilePath);
@@ -176,11 +179,18 @@ public class CSSBuilderTest {
 	private void _testCssBuilder(String compiler, String portalCommonCssPath)
 		throws Exception {
 
-		try (CSSBuilder cssBuilder = new CSSBuilder(
-				_docrootDirName, false, ".sass-cache/", portalCommonCssPath, 6,
-				new String[0], compiler)) {
+		CSSBuilderArgs args = new CSSBuilderArgs();
 
-			cssBuilder.execute(Arrays.asList(new String[] {"/css"}));
+		args.setDocrootDir(new File(_docrootDirName));
+		args.setGenerateSourceMap(false);
+		args.setOutputDirName(".sass-cache/");
+		args.setPortalCommonPath(portalCommonCssPath);
+		args.setPrecision(6);
+		args.setSassCompilerClassName(compiler);
+		args.setDirNames("/css");
+
+		try (CSSBuilder cssBuilder = new CSSBuilder(args)) {
+			cssBuilder.execute();
 		}
 
 		String expectedTestContent = _read(

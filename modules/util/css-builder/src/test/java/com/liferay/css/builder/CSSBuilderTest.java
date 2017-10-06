@@ -90,17 +90,17 @@ public class CSSBuilderTest {
 
 		_changeContentInPath(fragmentFileToChange, "brown", "khaki");
 
-		CSSBuilderArgs args = new CSSBuilderArgs();
+		CSSBuilderArgs cssBuilderArgs = new CSSBuilderArgs();
 
-		args.setDocrootDir(new File(_docrootDirName));
-		args.setGenerateSourceMap(false);
-		args.setOutputDirName(".sass-cache/");
-		args.setPortalCommonPath(_PORTAL_COMMON_CSS_DIR_NAME);
-		args.setPrecision(6);
-		args.setSassCompilerClassName("jni");
-		args.setDirNames("/css");
+		cssBuilderArgs.setDocrootDir(new File(_docrootDirName));
+		cssBuilderArgs.setGenerateSourceMap(false);
+		cssBuilderArgs.setOutputDirName(".sass-cache/");
+		cssBuilderArgs.setPortalCommonPath(_PORTAL_COMMON_CSS_DIR_NAME);
+		cssBuilderArgs.setPrecision(6);
+		cssBuilderArgs.setSassCompilerClassName("jni");
+		cssBuilderArgs.setDirNames("/css");
 
-		try (CSSBuilder cssBuilder = new CSSBuilder(args)) {
+		try (CSSBuilder cssBuilder = new CSSBuilder(cssBuilderArgs)) {
 			cssBuilder.execute();
 		}
 
@@ -111,7 +111,7 @@ public class CSSBuilderTest {
 
 		_changeContentInPath(fragmentFileToChange, "khaki", "brown");
 
-		try (CSSBuilder cssBuilder = new CSSBuilder(args)) {
+		try (CSSBuilder cssBuilder = new CSSBuilder(cssBuilderArgs)) {
 			cssBuilder.execute();
 		}
 
@@ -179,17 +179,17 @@ public class CSSBuilderTest {
 	private void _testCssBuilder(String compiler, String portalCommonCssPath)
 		throws Exception {
 
-		CSSBuilderArgs args = new CSSBuilderArgs();
+		CSSBuilderArgs cssbuilderargs = new CSSBuilderArgs();
 
-		args.setDocrootDir(new File(_docrootDirName));
-		args.setGenerateSourceMap(false);
-		args.setOutputDirName(".sass-cache/");
-		args.setPortalCommonPath(portalCommonCssPath);
-		args.setPrecision(6);
-		args.setSassCompilerClassName(compiler);
-		args.setDirNames("/css");
+		cssbuilderargs.setDocrootDir(new File(_docrootDirName));
+		cssbuilderargs.setGenerateSourceMap(false);
+		cssbuilderargs.setOutputDirName(".sass-cache/");
+		cssbuilderargs.setPortalCommonPath(portalCommonCssPath);
+		cssbuilderargs.setPrecision(6);
+		cssbuilderargs.setSassCompilerClassName(compiler);
+		cssbuilderargs.setDirNames("/css");
 
-		try (CSSBuilder cssBuilder = new CSSBuilder(args)) {
+		try (CSSBuilder cssBuilder = new CSSBuilder(cssbuilderargs)) {
 			cssBuilder.execute();
 		}
 

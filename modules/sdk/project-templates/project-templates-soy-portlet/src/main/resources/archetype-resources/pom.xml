@@ -80,17 +80,17 @@
 						<goals>
 							<goal>transpile-js</goal>
 						</goals>
-                        <configuration>
-                            <nodePath>${project.build.directory}/node/node</nodePath>
-                            <workingPath>${project.build.outputDirectory}/META-INF/resources</workingPath>
-                            <modulePath>${node.modules.dir}/metal-cli/index.js</modulePath>
-                            <dest>${project.build.outputDirectory}/META-INF/resources</dest>
-                            <soyDeps>
-                                <soyDep>${node.modules.dir}/lexicon*/src/**/*.soy</soyDep>
-                                <soyDep>${node.modules.dir}/metal*/src/**/*.soy</soyDep>
-                            </soyDeps>
-                            <soyDest>${project.build.outputDirectory}/META-INF/resources</soyDest>
-                        </configuration>
+						<configuration>
+							<nodePath>${project.build.directory}/node/node</nodePath>
+							<workingPath>${project.build.outputDirectory}/META-INF/resources</workingPath>
+							<modulePath>${node.modules.dir}/metal-cli/index.js</modulePath>
+							<dest>${project.build.outputDirectory}/META-INF/resources</dest>
+							<soyDeps>
+								<soyDep>${node.modules.dir}/lexicon*/src/**/*.soy</soyDep>
+								<soyDep>${node.modules.dir}/metal*/src/**/*.soy</soyDep>
+							</soyDeps>
+							<soyDest>${project.build.outputDirectory}/META-INF/resources</soyDest>
+						</configuration>
 					</execution>
 					<execution>
 						<id>config-js-modules</id>
@@ -98,16 +98,16 @@
 						<goals>
 							<goal>config-js-modules</goal>
 						</goals>
-                        <configuration>
-                            <nodePath>${project.build.directory}/node/node</nodePath>
-                            <workingPath>${project.build.outputDirectory}/META-INF/resources</workingPath>
-                            <modulePath>${node.modules.dir}/liferay-module-config-generator/bin/index.js</modulePath>
-                            <filePattern>**/resources/*.js</filePattern>
-                            <moduleConfig>${project.basedir}/package.json</moduleConfig>
-                            <output>${project.build.outputDirectory}/META-INF/config.json</output>
-                            <moduleRoot>${project.build.outputDirectory}/META-INF/resources</moduleRoot>
-                            <input>${project.build.outputDirectory}/META-INF</input>
-                        </configuration>
+						<configuration>
+							<nodePath>${project.build.directory}/node/node</nodePath>
+							<workingPath>${project.build.outputDirectory}/META-INF/resources</workingPath>
+							<modulePath>${node.modules.dir}/liferay-module-config-generator/bin/index.js</modulePath>
+							<filePattern>**/resources/*.js</filePattern>
+							<moduleConfig>${project.basedir}/package.json</moduleConfig>
+							<output>${project.build.outputDirectory}/META-INF/config.json</output>
+							<moduleRoot>${project.build.outputDirectory}/META-INF/resources</moduleRoot>
+							<input>${project.build.outputDirectory}/META-INF</input>
+						</configuration>
 					</execution>
 					<execution>
 						<id>replace-translation</id>
@@ -115,9 +115,9 @@
 						<goals>
 							<goal>replace-translation</goal>
 						</goals>
-                        <configuration>
-                            <dir>${project.build.outputDirectory}</dir>
-                        </configuration>
+						<configuration>
+							<dir>${project.build.outputDirectory}</dir>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>

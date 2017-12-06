@@ -106,7 +106,7 @@ public class TranspileJsMojo extends BaseSoyNodeMojo<TranspileJsCommand> {
 	public void setSoySrcs(List<String> soySrc) {
 		command.setSoySrcs(soySrc);
 	}
-	
+
 	/**
 	 * The path globs to the js files to be compiled.
 	 *

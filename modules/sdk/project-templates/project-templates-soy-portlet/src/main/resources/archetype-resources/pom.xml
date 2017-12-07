@@ -81,15 +81,15 @@
 							<goal>transpile-js</goal>
 						</goals>
 						<configuration>
-							<nodePath>${project.build.directory}/node/node</nodePath>
-							<workingPath>${project.build.outputDirectory}/META-INF/resources</workingPath>
-							<modulePath>${node.modules.dir}/metal-cli/index.js</modulePath>
 							<dest>${project.build.outputDirectory}/META-INF/resources</dest>
+							<modulePath>${node.modules.dir}/metal-cli/index.js</modulePath>
+							<nodePath>${project.build.directory}/node/node</nodePath>
 							<soyDeps>
 								<soyDep>${node.modules.dir}/lexicon*/src/**/*.soy</soyDep>
 								<soyDep>${node.modules.dir}/metal*/src/**/*.soy</soyDep>
 							</soyDeps>
 							<soyDest>${project.build.outputDirectory}/META-INF/resources</soyDest>
+							<workingPath>${project.build.outputDirectory}/META-INF/resources</workingPath>
 						</configuration>
 					</execution>
 					<execution>
@@ -99,14 +99,14 @@
 							<goal>config-js-modules</goal>
 						</goals>
 						<configuration>
-							<nodePath>${project.build.directory}/node/node</nodePath>
-							<workingPath>${project.build.outputDirectory}/META-INF/resources</workingPath>
-							<modulePath>${node.modules.dir}/liferay-module-config-generator/bin/index.js</modulePath>
 							<filePattern>**/resources/*.js</filePattern>
-							<moduleConfig>${project.basedir}/package.json</moduleConfig>
-							<output>${project.build.outputDirectory}/META-INF/config.json</output>
-							<moduleRoot>${project.build.outputDirectory}/META-INF/resources</moduleRoot>
 							<input>${project.build.outputDirectory}/META-INF</input>
+							<moduleConfig>${project.basedir}/package.json</moduleConfig>
+							<modulePath>${node.modules.dir}/liferay-module-config-generator/bin/index.js</modulePath>
+							<moduleRoot>${project.build.outputDirectory}/META-INF/resources</moduleRoot>
+							<nodePath>${project.build.directory}/node/node</nodePath>
+							<output>${project.build.outputDirectory}/META-INF/config.json</output>
+							<workingPath>${project.build.outputDirectory}/META-INF/resources</workingPath>
 						</configuration>
 					</execution>
 					<execution>

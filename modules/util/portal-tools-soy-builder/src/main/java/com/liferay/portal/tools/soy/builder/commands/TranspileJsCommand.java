@@ -31,15 +31,17 @@ import java.util.List;
 )
 public class TranspileJsCommand extends BaseNodeCommand {
 
-	public TranspileJsCommand() {
-	}
-
 	@Override
 	public void execute() throws Exception {
 		Collection<String> arrayList = new ArrayList<>();
 
-		arrayList.add(getNodePath());
-		arrayList.add(getModulePath());
+		String modulePath = String.valueOf(getModulePath());
+		String nodePath = String.valueOf(getNodePath());
+
+		arrayList.add(nodePath);
+
+		arrayList.add(modulePath);
+
 		arrayList.add("build");
 
 		if (_bundleFileName.length() > 0) {

@@ -24,40 +24,38 @@ import java.io.IOException;
  */
 public abstract class BaseNodeCommand implements Command {
 
-	public String getModulePath() {
+	public File getModulePath() {
 		return _modulePath;
 	}
 
-	public String getNodePath() {
+	public File getNodePath() {
 		return _nodePath;
 	}
 
-	public String getWorkingPath() {
+	public File getWorkingPath() {
 		return _workingPath;
 	}
 
-	public void setModulePath(String modulePath) {
+	public void setModulePath(File modulePath) {
 		_modulePath = modulePath;
 	}
 
-	public void setNodePath(String nodePath) {
+	public void setNodePath(File nodePath) {
 		_nodePath = nodePath;
 	}
 
-	public void setWorkingPath(String workingPath) {
+	public void setWorkingPath(File workingPath) {
 		_workingPath = workingPath;
 	}
 
-	protected static int executeCommand(String command, String workingPath)
+	protected static int executeCommand(String command, File workingPath)
 		throws InterruptedException, IOException {
 
-		File file = new File(workingPath);
+		Runtime runtime = Runtime.getRuntime();
 
-		final Runtime runtime = Runtime.getRuntime();
+		Process process = runtime.exec(command, null, workingPath);
 
-		final Process process = runtime.exec(command, null, file);
-
-		final int returnCode = process.waitFor();
+		int returnCode = process.waitFor();
 
 		return returnCode;
 	}
@@ -66,18 +64,18 @@ public abstract class BaseNodeCommand implements Command {
 		description = "The path to the node module to be executed.",
 		names = {"--modulePath"}, required = true
 	)
-	private String _modulePath;
+	private File _modulePath;
 
 	@Parameter(
 		description = "The path to the node executable.",
 		names = {"--nodePath"}, required = true
 	)
-	private String _nodePath;
+	private File _nodePath;
 
 	@Parameter(
 		description = "The working path (directory) of the process to be executed.",
 		names = {"--workingPath"}, required = true
 	)
-	private String _workingPath;
+	private File _workingPath;
 
 }

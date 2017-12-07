@@ -17,7 +17,7 @@ package com.liferay.journal.content.web.internal;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMTemplate;
 import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalService;
-import com.liferay.journal.content.web.constants.JournalContentPortletKeys;
+import com.liferay.journal.constants.JournalContentPortletKeys;
 import com.liferay.journal.exception.NoSuchArticleException;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.service.JournalArticleLocalService;
@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.PortletLocalService;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
@@ -69,7 +70,9 @@ public class JournalContentPortletLayoutListener
 		throws PortletLayoutListenerException {
 
 		if (_log.isDebugEnabled()) {
-			_log.debug("Add " + portletId + " to layout " + plid);
+			_log.debug(
+				StringBundler.concat(
+					"Add ", portletId, " to layout ", String.valueOf(plid)));
 		}
 
 		try {
@@ -99,7 +102,9 @@ public class JournalContentPortletLayoutListener
 		throws PortletLayoutListenerException {
 
 		if (_log.isDebugEnabled()) {
-			_log.debug("Move " + portletId + " from in " + plid);
+			_log.debug(
+				StringBundler.concat(
+					"Move ", portletId, " from in ", String.valueOf(plid)));
 		}
 	}
 
@@ -108,7 +113,10 @@ public class JournalContentPortletLayoutListener
 		throws PortletLayoutListenerException {
 
 		if (_log.isDebugEnabled()) {
-			_log.debug("Remove " + portletId + " from layout " + plid);
+			_log.debug(
+				StringBundler.concat(
+					"Remove ", portletId, " from layout ",
+					String.valueOf(plid)));
 		}
 
 		try {
@@ -146,7 +154,10 @@ public class JournalContentPortletLayoutListener
 		throws PortletLayoutListenerException {
 
 		if (_log.isDebugEnabled()) {
-			_log.debug("Setup " + portletId + " from layout " + plid);
+			_log.debug(
+				StringBundler.concat(
+					"Setup ", portletId, " from layout ",
+					String.valueOf(plid)));
 		}
 
 		try {

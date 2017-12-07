@@ -31,7 +31,8 @@ taglib uri="http://liferay.com/tld/trash" prefix="liferay-trash" %><%@
 taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %><%@
 taglib uri="http://liferay.com/tld/util" prefix="liferay-util" %>
 
-<%@ page import="com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil" %><%@
+<%@ page import="com.liferay.asset.constants.AssetWebKeys" %><%@
+page import="com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil" %><%@
 page import="com.liferay.asset.kernel.model.AssetEntry" %><%@
 page import="com.liferay.asset.kernel.model.AssetRenderer" %><%@
 page import="com.liferay.asset.kernel.model.AssetRendererFactory" %><%@
@@ -40,7 +41,7 @@ page import="com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil" %><%@
 page import="com.liferay.asset.kernel.service.AssetEntryServiceUtil" %><%@
 page import="com.liferay.asset.kernel.service.AssetTagLocalServiceUtil" %><%@
 page import="com.liferay.asset.kernel.service.persistence.AssetEntryQuery" %><%@
-page import="com.liferay.asset.util.impl.AssetUtil" %><%@
+page import="com.liferay.asset.util.AssetHelper" %><%@
 page import="com.liferay.captcha.configuration.CaptchaConfiguration" %><%@
 page import="com.liferay.document.library.configuration.DLConfiguration" %><%@
 page import="com.liferay.document.library.kernel.antivirus.AntivirusScannerException" %><%@
@@ -50,6 +51,7 @@ page import="com.liferay.document.library.kernel.exception.FileNameException" %>
 page import="com.liferay.document.library.kernel.exception.FileSizeException" %><%@
 page import="com.liferay.document.library.kernel.model.DLFileEntry" %><%@
 page import="com.liferay.document.library.kernel.util.DLValidatorUtil" %><%@
+page import="com.liferay.message.boards.constants.MBPortletKeys" %><%@
 page import="com.liferay.message.boards.display.context.MBHomeDisplayContext" %><%@
 page import="com.liferay.message.boards.display.context.MBListDisplayContext" %><%@
 page import="com.liferay.message.boards.kernel.constants.MBConstants" %><%@
@@ -71,30 +73,29 @@ page import="com.liferay.message.boards.kernel.exception.SplitThreadException" %
 page import="com.liferay.message.boards.kernel.model.MBCategory" %><%@
 page import="com.liferay.message.boards.kernel.model.MBCategoryConstants" %><%@
 page import="com.liferay.message.boards.kernel.model.MBCategoryDisplay" %><%@
-page import="com.liferay.message.boards.kernel.model.MBMailingList" %><%@
 page import="com.liferay.message.boards.kernel.model.MBMessage" %><%@
 page import="com.liferay.message.boards.kernel.model.MBMessageConstants" %><%@
 page import="com.liferay.message.boards.kernel.model.MBMessageDisplay" %><%@
 page import="com.liferay.message.boards.kernel.model.MBMessageIterator" %><%@
 page import="com.liferay.message.boards.kernel.model.MBThread" %><%@
-page import="com.liferay.message.boards.kernel.model.MBThreadFlag" %><%@
 page import="com.liferay.message.boards.kernel.model.MBTreeWalker" %><%@
 page import="com.liferay.message.boards.kernel.service.MBCategoryLocalServiceUtil" %><%@
 page import="com.liferay.message.boards.kernel.service.MBCategoryServiceUtil" %><%@
-page import="com.liferay.message.boards.kernel.service.MBMailingListLocalServiceUtil" %><%@
 page import="com.liferay.message.boards.kernel.service.MBMessageLocalServiceUtil" %><%@
 page import="com.liferay.message.boards.kernel.service.MBMessageServiceUtil" %><%@
-page import="com.liferay.message.boards.kernel.service.MBThreadFlagLocalServiceUtil" %><%@
 page import="com.liferay.message.boards.kernel.service.MBThreadLocalServiceUtil" %><%@
 page import="com.liferay.message.boards.kernel.service.MBThreadServiceUtil" %><%@
 page import="com.liferay.message.boards.kernel.util.comparator.MessageCreateDateComparator" %><%@
 page import="com.liferay.message.boards.model.MBBan" %><%@
+page import="com.liferay.message.boards.model.MBMailingList" %><%@
 page import="com.liferay.message.boards.model.MBStatsUser" %><%@
+page import="com.liferay.message.boards.model.MBThreadFlag" %><%@
 page import="com.liferay.message.boards.service.MBBanLocalServiceUtil" %><%@
+page import="com.liferay.message.boards.service.MBMailingListLocalServiceUtil" %><%@
 page import="com.liferay.message.boards.service.MBStatsUserLocalServiceUtil" %><%@
+page import="com.liferay.message.boards.service.MBThreadFlagLocalServiceUtil" %><%@
 page import="com.liferay.message.boards.util.comparator.CategoryTitleComparator" %><%@
 page import="com.liferay.message.boards.util.comparator.ThreadModifiedDateComparator" %><%@
-page import="com.liferay.message.boards.web.constants.MBPortletKeys" %><%@
 page import="com.liferay.message.boards.web.internal.dao.search.MBResultRowSplitter" %><%@
 page import="com.liferay.message.boards.web.internal.display.context.MBDisplayContextProvider" %><%@
 page import="com.liferay.message.boards.web.internal.display.context.util.MBRequestHelper" %><%@
@@ -193,6 +194,8 @@ page import="javax.portlet.WindowState" %>
 <portlet:defineObjects />
 
 <%
+AssetHelper assetHelper = (AssetHelper)request.getAttribute(AssetWebKeys.ASSET_HELPER);
+
 String currentLanguageId = LanguageUtil.getLanguageId(request);
 Locale currentLocale = LocaleUtil.fromLanguageId(currentLanguageId);
 Locale defaultLocale = themeDisplay.getSiteDefaultLocale();

@@ -14,6 +14,7 @@
 
 package com.liferay.portal.lar.test;
 
+import com.liferay.exportimport.kernel.lar.DataLevel;
 import com.liferay.exportimport.kernel.lar.ManifestSummary;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.PortletDataContextFactoryUtil;
@@ -56,6 +57,37 @@ public abstract class BasePortletDataHandlerTestCase {
 		portletId = getPortletId();
 
 		portletDataHandler = getPortletDataHandler(portletId);
+	}
+
+	@Test
+	public void testDataLevel() throws Exception {
+		Assert.assertEquals(getDataLevel(), portletDataHandler.getDataLevel());
+	}
+
+	@Test
+	public void testGetDataPortletPreferences() {
+		Assert.assertArrayEquals(
+			getDataPortletPreferences(),
+			portletDataHandler.getDataPortletPreferences());
+	}
+
+	@Test
+	public void testIsDataPortalLevel() {
+		Assert.assertEquals(
+			isDataPortalLevel(), portletDataHandler.isDataPortalLevel());
+	}
+
+	@Test
+	public void testIsDataPortletInstanceLevel() {
+		Assert.assertEquals(
+			isDataPortletInstanceLevel(),
+			portletDataHandler.isDataPortletInstanceLevel());
+	}
+
+	@Test
+	public void testIsDataSiteLevel() {
+		Assert.assertEquals(
+			isDataSiteLevel(), portletDataHandler.isDataSiteLevel());
 	}
 
 	@Test
@@ -105,16 +137,7 @@ public abstract class BasePortletDataHandlerTestCase {
 		ManifestSummary manifestSummary =
 			portletDataContext.getManifestSummary();
 
-		for (String manifestSummaryKey :
-				manifestSummary.getManifestSummaryKeys()) {
-
-			Assert.assertFalse(
-				manifestSummaryKey.endsWith(
-					StagedModelType.REFERRER_CLASS_NAME_ALL));
-			Assert.assertFalse(
-				manifestSummaryKey.endsWith(
-					StagedModelType.REFERRER_CLASS_NAME_ANY));
-		}
+		checkManifestSummaryReferrerClassNames(manifestSummary);
 
 		for (String manifestSummaryKey :
 				expectedManifestSummary.getManifestSummaryKeys()) {
@@ -143,6 +166,29 @@ public abstract class BasePortletDataHandlerTestCase {
 					expectedModelAdditionCount, modelAdditionCount);
 			}
 		}
+	}
+
+	protected void checkManifestSummaryReferrerClassNames(
+		ManifestSummary manifestSummary) {
+
+		for (String manifestSummaryKey :
+				manifestSummary.getManifestSummaryKeys()) {
+
+			Assert.assertFalse(
+				manifestSummaryKey.endsWith(
+					StagedModelType.REFERRER_CLASS_NAME_ALL));
+			Assert.assertFalse(
+				manifestSummaryKey.endsWith(
+					StagedModelType.REFERRER_CLASS_NAME_ANY));
+		}
+	}
+
+	protected DataLevel getDataLevel() {
+		return DataLevel.SITE;
+	}
+
+	protected String[] getDataPortletPreferences() {
+		return StringPool.EMPTY_ARRAY;
 	}
 
 	protected Date getEndDate() {
@@ -195,6 +241,24 @@ public abstract class BasePortletDataHandlerTestCase {
 
 		portletDataContext.setMissingReferencesElement(
 			missingReferencesElement);
+	}
+
+	protected boolean isDataPortalLevel() {
+		DataLevel dataLevel = getDataLevel();
+
+		return dataLevel.equals(DataLevel.PORTAL);
+	}
+
+	protected boolean isDataPortletInstanceLevel() {
+		DataLevel dataLevel = getDataLevel();
+
+		return dataLevel.equals(DataLevel.PORTLET_INSTANCE);
+	}
+
+	protected boolean isDataSiteLevel() {
+		DataLevel dataLevel = getDataLevel();
+
+		return dataLevel.equals(DataLevel.SITE);
 	}
 
 	protected Element missingReferencesElement;

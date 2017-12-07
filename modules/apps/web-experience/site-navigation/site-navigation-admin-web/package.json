@@ -1,17 +1,22 @@
 {
 	"dependencies": {
-		"metal": "^2.13.2",
-		"metal-component": "^2.10.0",
-		"metal-dropdown": "^3.0.0",
-		"metal-soy": "^2.13.2",
+		"metal-dom": "^2.0.0",
+		"metal-drag-drop": "^2.0.1",
 		"metal-state": "^2.13.2"
 	},
 	"devDependencies": {
-		"eslint": "^3.17.1",
-		"eslint-config-liferay": "^1.0.2",
-		"liferay-module-config-generator": "^1.1.10",
-		"metal-cli": "^4.3.3"
+		"eslint": "^4.11.0",
+		"eslint-config-liferay": "^2.0.15",
+		"liferay-module-config-generator": "^1.2.1",
+		"metal-cli": "^4.0.1",
+		"prettier-eslint-cli": "^4.4.0"
 	},
-	"name": "site-navigation-admin-web",
+	"name": "site-navigation-menu-web",
+	"scripts": {
+		"checkFormat": "npm run prettier -- --list-different",
+		"format": "npm run prettier -- --write",
+		"lint": "eslint src/**/*.es.js",
+		"prettier": "prettier-eslint src/**/*.es.js"
+	},
 	"version": "1.0.0"
 }

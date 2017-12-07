@@ -1315,8 +1315,6 @@
 	<command name="editPasswordInvalidCP">
 		<var name="key_userScreenName" value="${userScreenName}" />
 
-		<execute function="Pause" locator1="1000" />
-
 		<execute function="AssertTextEquals" locator1="UsersAndOrganizations#USER_TABLE_SCREEN_NAME" value1="${userScreenName}" />
 
 		<execute function="AssertClick" locator1="UsersAndOrganizations#USER_TABLE_SCREEN_NAME" value1="${userScreenName}" />
@@ -1340,12 +1338,28 @@
 		<execute macro="Button#clickSave" />
 
 		<if>
-			<equals arg1="${trivialPassword}" arg2="true" />
+			<equals arg1="${changeable}" arg2="false" />
 			<then>
 				<execute macro="Alert#viewRequestFailedToComplete" />
 
-				<execute function="AssertTextEquals#assertPartialText" locator1="Message#ERROR_2" value1="That password uses common words. Please enter a password that is harder to guess (i.e. contains a mix of numbers and letters)." />
+				<execute function="AssertTextEquals#assertPartialText" locator1="Message#ERROR_2" value1="Passwords may not be changed under the current password policy." />
 			</then>
+			<elseif>
+				<equals arg1="${passwordTooShort}" arg2="true" />
+				<then>
+					<execute macro="Alert#viewRequestFailedToComplete" />
+
+					<execute function="AssertTextEquals#assertPartialText" locator1="Message#ERROR_2" value1="That password is too short. Please make sure your password is at least 6 characters long." />
+				</then>
+			</elseif>
+			<elseif>
+				<equals arg1="${trivialPassword}" arg2="true" />
+				<then>
+					<execute macro="Alert#viewRequestFailedToComplete" />
+
+					<execute function="AssertTextEquals#assertPartialText" locator1="Message#ERROR_2" value1="That password uses common words. Please enter a password that is harder to guess (i.e. contains a mix of numbers and letters)." />
+				</then>
+			</elseif>
 			<elseif>
 				<isset var="regex" />
 				<then>

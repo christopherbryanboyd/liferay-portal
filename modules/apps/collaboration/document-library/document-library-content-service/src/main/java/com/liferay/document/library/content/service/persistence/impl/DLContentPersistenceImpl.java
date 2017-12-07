@@ -22,8 +22,6 @@ import com.liferay.document.library.content.model.impl.DLContentImpl;
 import com.liferay.document.library.content.model.impl.DLContentModelImpl;
 import com.liferay.document.library.content.service.persistence.DLContentPersistence;
 
-import com.liferay.petra.string.CharPool;
-
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -37,10 +35,8 @@ import com.liferay.portal.kernel.service.persistence.CompanyProvider;
 import com.liferay.portal.kernel.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.OrderByComparator;
-import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.spring.extender.service.ServiceReference;
 
@@ -322,7 +318,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 		msg.append(", repositoryId=");
 		msg.append(repositoryId);
 
-		msg.append(StringPool.CLOSE_CURLY_BRACE);
+		msg.append("}");
 
 		throw new NoSuchContentException(msg.toString());
 	}
@@ -378,7 +374,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 		msg.append(", repositoryId=");
 		msg.append(repositoryId);
 
-		msg.append(StringPool.CLOSE_CURLY_BRACE);
+		msg.append("}");
 
 		throw new NoSuchContentException(msg.toString());
 	}
@@ -801,7 +797,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 			if (path == null) {
 				query.append(_FINDER_COLUMN_C_R_P_PATH_1);
 			}
-			else if (path.equals(StringPool.BLANK)) {
+			else if (path.equals("")) {
 				query.append(_FINDER_COLUMN_C_R_P_PATH_3);
 			}
 			else {
@@ -902,7 +898,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 		msg.append(", path=");
 		msg.append(path);
 
-		msg.append(StringPool.CLOSE_CURLY_BRACE);
+		msg.append("}");
 
 		throw new NoSuchContentException(msg.toString());
 	}
@@ -963,7 +959,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 		msg.append(", path=");
 		msg.append(path);
 
-		msg.append(StringPool.CLOSE_CURLY_BRACE);
+		msg.append("}");
 
 		throw new NoSuchContentException(msg.toString());
 	}
@@ -1064,7 +1060,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 		if (path == null) {
 			query.append(_FINDER_COLUMN_C_R_P_PATH_1);
 		}
-		else if (path.equals(StringPool.BLANK)) {
+		else if (path.equals("")) {
 			query.append(_FINDER_COLUMN_C_R_P_PATH_3);
 		}
 		else {
@@ -1212,7 +1208,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 			if (path == null) {
 				query.append(_FINDER_COLUMN_C_R_P_PATH_1);
 			}
-			else if (path.equals(StringPool.BLANK)) {
+			else if (path.equals("")) {
 				query.append(_FINDER_COLUMN_C_R_P_PATH_3);
 			}
 			else {
@@ -1383,8 +1379,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 					if ((companyId != dlContent.getCompanyId()) ||
 							(repositoryId != dlContent.getRepositoryId()) ||
 							!StringUtil.wildcardMatches(dlContent.getPath(),
-								path, CharPool.UNDERLINE, CharPool.PERCENT,
-								CharPool.BACK_SLASH, true)) {
+								path, '_', '%', '\\', true)) {
 						list = null;
 
 						break;
@@ -1415,7 +1410,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 			if (path == null) {
 				query.append(_FINDER_COLUMN_C_R_LIKEP_PATH_1);
 			}
-			else if (path.equals(StringPool.BLANK)) {
+			else if (path.equals("")) {
 				query.append(_FINDER_COLUMN_C_R_LIKEP_PATH_3);
 			}
 			else {
@@ -1516,7 +1511,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 		msg.append(", path=");
 		msg.append(path);
 
-		msg.append(StringPool.CLOSE_CURLY_BRACE);
+		msg.append("}");
 
 		throw new NoSuchContentException(msg.toString());
 	}
@@ -1577,7 +1572,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 		msg.append(", path=");
 		msg.append(path);
 
-		msg.append(StringPool.CLOSE_CURLY_BRACE);
+		msg.append("}");
 
 		throw new NoSuchContentException(msg.toString());
 	}
@@ -1678,7 +1673,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 		if (path == null) {
 			query.append(_FINDER_COLUMN_C_R_LIKEP_PATH_1);
 		}
-		else if (path.equals(StringPool.BLANK)) {
+		else if (path.equals("")) {
 			query.append(_FINDER_COLUMN_C_R_LIKEP_PATH_3);
 		}
 		else {
@@ -1826,7 +1821,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 			if (path == null) {
 				query.append(_FINDER_COLUMN_C_R_LIKEP_PATH_1);
 			}
-			else if (path.equals(StringPool.BLANK)) {
+			else if (path.equals("")) {
 				query.append(_FINDER_COLUMN_C_R_LIKEP_PATH_3);
 			}
 			else {
@@ -1928,7 +1923,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 			msg.append(", version=");
 			msg.append(version);
 
-			msg.append(StringPool.CLOSE_CURLY_BRACE);
+			msg.append("}");
 
 			if (_log.isDebugEnabled()) {
 				_log.debug(msg.toString());
@@ -2004,7 +1999,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 			if (path == null) {
 				query.append(_FINDER_COLUMN_C_R_P_V_PATH_1);
 			}
-			else if (path.equals(StringPool.BLANK)) {
+			else if (path.equals("")) {
 				query.append(_FINDER_COLUMN_C_R_P_V_PATH_3);
 			}
 			else {
@@ -2018,7 +2013,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 			if (version == null) {
 				query.append(_FINDER_COLUMN_C_R_P_V_VERSION_1);
 			}
-			else if (version.equals(StringPool.BLANK)) {
+			else if (version.equals("")) {
 				query.append(_FINDER_COLUMN_C_R_P_V_VERSION_3);
 			}
 			else {
@@ -2145,7 +2140,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 			if (path == null) {
 				query.append(_FINDER_COLUMN_C_R_P_V_PATH_1);
 			}
-			else if (path.equals(StringPool.BLANK)) {
+			else if (path.equals("")) {
 				query.append(_FINDER_COLUMN_C_R_P_V_PATH_3);
 			}
 			else {
@@ -2159,7 +2154,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 			if (version == null) {
 				query.append(_FINDER_COLUMN_C_R_P_V_VERSION_1);
 			}
-			else if (version.equals(StringPool.BLANK)) {
+			else if (version.equals("")) {
 				query.append(_FINDER_COLUMN_C_R_P_V_VERSION_3);
 			}
 			else {
@@ -2221,8 +2216,10 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 		setModelClass(DLContent.class);
 
 		try {
-			Field field = ReflectionUtil.getDeclaredField(BasePersistenceImpl.class,
+			Field field = BasePersistenceImpl.class.getDeclaredField(
 					"_dbColumnNames");
+
+			field.setAccessible(true);
 
 			Map<String, String> dbColumnNames = new HashMap<String, String>();
 
@@ -2761,12 +2758,12 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 		for (Serializable primaryKey : uncachedPrimaryKeys) {
 			query.append((long)primaryKey);
 
-			query.append(StringPool.COMMA);
+			query.append(",");
 		}
 
 		query.setIndex(query.index() - 1);
 
-		query.append(StringPool.CLOSE_PARENTHESIS);
+		query.append(")");
 
 		String sql = query.toString();
 

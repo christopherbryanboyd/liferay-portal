@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PredicateFilter;
+import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowDefinition;
 import com.liferay.portal.kernel.workflow.WorkflowDefinitionManagerUtil;
@@ -38,6 +39,8 @@ import com.liferay.portal.workflow.web.internal.util.filter.WorkflowDefinitionAc
 import com.liferay.portal.workflow.web.internal.util.filter.WorkflowDefinitionDescriptionPredicateFilter;
 import com.liferay.portal.workflow.web.internal.util.filter.WorkflowDefinitionTitlePredicateFilter;
 
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import javax.portlet.RenderRequest;
@@ -72,6 +75,10 @@ public class WorkflowDefinitionDisplayContext {
 		return HtmlUtil.escape(workflowDefinition.getDescription());
 	}
 
+	public Date getModifiedDate(WorkflowDefinition workflowDefinition) {
+		return workflowDefinition.getModifiedDate();
+	}
+
 	public String getName(WorkflowDefinition workflowDefinition) {
 		return HtmlUtil.escape(workflowDefinition.getName());
 	}
@@ -81,7 +88,7 @@ public class WorkflowDefinitionDisplayContext {
 		throws PortalException {
 
 		List<WorkflowDefinition> workflowDefinitions =
-			WorkflowDefinitionManagerUtil.getWorkflowDefinitions(
+			WorkflowDefinitionManagerUtil.getLatestWorkflowDefinitions(
 				_workflowDefinitionRequestHelper.getCompanyId(),
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS,
 				getWorkflowDefinitionOrderByComparator());
@@ -133,8 +140,14 @@ public class WorkflowDefinitionDisplayContext {
 		return user.getFullName();
 	}
 
-	public String getVersion(WorkflowDefinition workflowDefinition) {
-		return String.valueOf(workflowDefinition.getVersion());
+	public String getUserNameOrBlank(WorkflowDefinition workflowDefinition) {
+		String userName = getUserName(workflowDefinition);
+
+		if (userName == null) {
+			userName = StringPool.BLANK;
+		}
+
+		return userName;
 	}
 
 	public List<WorkflowDefinition> getWorkflowDefinitions(String name)
@@ -143,6 +156,22 @@ public class WorkflowDefinitionDisplayContext {
 		return WorkflowDefinitionManagerUtil.getWorkflowDefinitions(
 			_workflowDefinitionRequestHelper.getCompanyId(), name,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
+	}
+
+	public List<WorkflowDefinition> getWorkflowDefinitionsOrderByDesc(
+			String name)
+		throws PortalException {
+
+		List<WorkflowDefinition> workFlowDefinitions = getWorkflowDefinitions(
+			name);
+
+		if (workFlowDefinitions.size() <= 1) {
+			return workFlowDefinitions;
+		}
+
+		Collections.reverse(workFlowDefinitions);
+
+		return workFlowDefinitions;
 	}
 
 	protected PredicateFilter<WorkflowDefinition> createPredicateFilter(

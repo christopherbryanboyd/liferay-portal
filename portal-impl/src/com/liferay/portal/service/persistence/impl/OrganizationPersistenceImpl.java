@@ -16,8 +16,6 @@ package com.liferay.portal.service.persistence.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.petra.string.CharPool;
-
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
@@ -47,10 +45,8 @@ import com.liferay.portal.kernel.service.persistence.impl.TableMapperFactory;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
-import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
@@ -240,7 +236,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 			if (uuid == null) {
 				query.append(_FINDER_COLUMN_UUID_UUID_1);
 			}
-			else if (uuid.equals(StringPool.BLANK)) {
+			else if (uuid.equals("")) {
 				query.append(_FINDER_COLUMN_UUID_UUID_3);
 			}
 			else {
@@ -328,7 +324,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		msg.append("uuid=");
 		msg.append(uuid);
 
-		msg.append(StringPool.CLOSE_CURLY_BRACE);
+		msg.append("}");
 
 		throw new NoSuchOrganizationException(msg.toString());
 	}
@@ -377,7 +373,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		msg.append("uuid=");
 		msg.append(uuid);
 
-		msg.append(StringPool.CLOSE_CURLY_BRACE);
+		msg.append("}");
 
 		throw new NoSuchOrganizationException(msg.toString());
 	}
@@ -469,7 +465,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		if (uuid == null) {
 			query.append(_FINDER_COLUMN_UUID_UUID_1);
 		}
-		else if (uuid.equals(StringPool.BLANK)) {
+		else if (uuid.equals("")) {
 			query.append(_FINDER_COLUMN_UUID_UUID_3);
 		}
 		else {
@@ -638,7 +634,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		if (uuid == null) {
 			query.append(_FINDER_COLUMN_UUID_UUID_1_SQL);
 		}
-		else if (uuid.equals(StringPool.BLANK)) {
+		else if (uuid.equals("")) {
 			query.append(_FINDER_COLUMN_UUID_UUID_3_SQL);
 		}
 		else {
@@ -776,7 +772,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		if (uuid == null) {
 			query.append(_FINDER_COLUMN_UUID_UUID_1_SQL);
 		}
-		else if (uuid.equals(StringPool.BLANK)) {
+		else if (uuid.equals("")) {
 			query.append(_FINDER_COLUMN_UUID_UUID_3_SQL);
 		}
 		else {
@@ -942,7 +938,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 			if (uuid == null) {
 				query.append(_FINDER_COLUMN_UUID_UUID_1);
 			}
-			else if (uuid.equals(StringPool.BLANK)) {
+			else if (uuid.equals("")) {
 				query.append(_FINDER_COLUMN_UUID_UUID_3);
 			}
 			else {
@@ -1004,7 +1000,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		if (uuid == null) {
 			query.append(_FINDER_COLUMN_UUID_UUID_1_SQL);
 		}
-		else if (uuid.equals(StringPool.BLANK)) {
+		else if (uuid.equals("")) {
 			query.append(_FINDER_COLUMN_UUID_UUID_3_SQL);
 		}
 		else {
@@ -1199,7 +1195,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 			if (uuid == null) {
 				query.append(_FINDER_COLUMN_UUID_C_UUID_1);
 			}
-			else if (uuid.equals(StringPool.BLANK)) {
+			else if (uuid.equals("")) {
 				query.append(_FINDER_COLUMN_UUID_C_UUID_3);
 			}
 			else {
@@ -1296,7 +1292,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		msg.append(", companyId=");
 		msg.append(companyId);
 
-		msg.append(StringPool.CLOSE_CURLY_BRACE);
+		msg.append("}");
 
 		throw new NoSuchOrganizationException(msg.toString());
 	}
@@ -1352,7 +1348,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		msg.append(", companyId=");
 		msg.append(companyId);
 
-		msg.append(StringPool.CLOSE_CURLY_BRACE);
+		msg.append("}");
 
 		throw new NoSuchOrganizationException(msg.toString());
 	}
@@ -1447,7 +1443,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		if (uuid == null) {
 			query.append(_FINDER_COLUMN_UUID_C_UUID_1);
 		}
-		else if (uuid.equals(StringPool.BLANK)) {
+		else if (uuid.equals("")) {
 			query.append(_FINDER_COLUMN_UUID_C_UUID_3);
 		}
 		else {
@@ -1625,7 +1621,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		if (uuid == null) {
 			query.append(_FINDER_COLUMN_UUID_C_UUID_1_SQL);
 		}
-		else if (uuid.equals(StringPool.BLANK)) {
+		else if (uuid.equals("")) {
 			query.append(_FINDER_COLUMN_UUID_C_UUID_3_SQL);
 		}
 		else {
@@ -1769,7 +1765,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		if (uuid == null) {
 			query.append(_FINDER_COLUMN_UUID_C_UUID_1_SQL);
 		}
-		else if (uuid.equals(StringPool.BLANK)) {
+		else if (uuid.equals("")) {
 			query.append(_FINDER_COLUMN_UUID_C_UUID_3_SQL);
 		}
 		else {
@@ -1941,7 +1937,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 			if (uuid == null) {
 				query.append(_FINDER_COLUMN_UUID_C_UUID_1);
 			}
-			else if (uuid.equals(StringPool.BLANK)) {
+			else if (uuid.equals("")) {
 				query.append(_FINDER_COLUMN_UUID_C_UUID_3);
 			}
 			else {
@@ -2008,7 +2004,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		if (uuid == null) {
 			query.append(_FINDER_COLUMN_UUID_C_UUID_1_SQL);
 		}
-		else if (uuid.equals(StringPool.BLANK)) {
+		else if (uuid.equals("")) {
 			query.append(_FINDER_COLUMN_UUID_C_UUID_3_SQL);
 		}
 		else {
@@ -2273,7 +2269,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		msg.append("companyId=");
 		msg.append(companyId);
 
-		msg.append(StringPool.CLOSE_CURLY_BRACE);
+		msg.append("}");
 
 		throw new NoSuchOrganizationException(msg.toString());
 	}
@@ -2324,7 +2320,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		msg.append("companyId=");
 		msg.append(companyId);
 
-		msg.append(StringPool.CLOSE_CURLY_BRACE);
+		msg.append("}");
 
 		throw new NoSuchOrganizationException(msg.toString());
 	}
@@ -3139,7 +3135,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		msg.append("companyId=");
 		msg.append(companyId);
 
-		msg.append(StringPool.CLOSE_CURLY_BRACE);
+		msg.append("}");
 
 		throw new NoSuchOrganizationException(msg.toString());
 	}
@@ -3190,7 +3186,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		msg.append("companyId=");
 		msg.append(companyId);
 
-		msg.append(StringPool.CLOSE_CURLY_BRACE);
+		msg.append("}");
 
 		throw new NoSuchOrganizationException(msg.toString());
 	}
@@ -4027,7 +4023,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		msg.append(", parentOrganizationId=");
 		msg.append(parentOrganizationId);
 
-		msg.append(StringPool.CLOSE_CURLY_BRACE);
+		msg.append("}");
 
 		throw new NoSuchOrganizationException(msg.toString());
 	}
@@ -4085,7 +4081,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		msg.append(", parentOrganizationId=");
 		msg.append(parentOrganizationId);
 
-		msg.append(StringPool.CLOSE_CURLY_BRACE);
+		msg.append("}");
 
 		throw new NoSuchOrganizationException(msg.toString());
 	}
@@ -4829,9 +4825,8 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 				for (Organization organization : list) {
 					if ((companyId != organization.getCompanyId()) ||
 							!StringUtil.wildcardMatches(
-								organization.getTreePath(), treePath,
-								CharPool.UNDERLINE, CharPool.PERCENT,
-								CharPool.BACK_SLASH, true)) {
+								organization.getTreePath(), treePath, '_', '%',
+								'\\', true)) {
 						list = null;
 
 						break;
@@ -4860,7 +4855,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 			if (treePath == null) {
 				query.append(_FINDER_COLUMN_C_T_TREEPATH_1);
 			}
-			else if (treePath.equals(StringPool.BLANK)) {
+			else if (treePath.equals("")) {
 				query.append(_FINDER_COLUMN_C_T_TREEPATH_3);
 			}
 			else {
@@ -4955,7 +4950,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		msg.append(", treePath=");
 		msg.append(treePath);
 
-		msg.append(StringPool.CLOSE_CURLY_BRACE);
+		msg.append("}");
 
 		throw new NoSuchOrganizationException(msg.toString());
 	}
@@ -5011,7 +5006,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		msg.append(", treePath=");
 		msg.append(treePath);
 
-		msg.append(StringPool.CLOSE_CURLY_BRACE);
+		msg.append("}");
 
 		throw new NoSuchOrganizationException(msg.toString());
 	}
@@ -5108,7 +5103,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		if (treePath == null) {
 			query.append(_FINDER_COLUMN_C_T_TREEPATH_1);
 		}
-		else if (treePath.equals(StringPool.BLANK)) {
+		else if (treePath.equals("")) {
 			query.append(_FINDER_COLUMN_C_T_TREEPATH_3);
 		}
 		else {
@@ -5286,7 +5281,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		if (treePath == null) {
 			query.append(_FINDER_COLUMN_C_T_TREEPATH_1);
 		}
-		else if (treePath.equals(StringPool.BLANK)) {
+		else if (treePath.equals("")) {
 			query.append(_FINDER_COLUMN_C_T_TREEPATH_3);
 		}
 		else {
@@ -5430,7 +5425,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		if (treePath == null) {
 			query.append(_FINDER_COLUMN_C_T_TREEPATH_1);
 		}
-		else if (treePath.equals(StringPool.BLANK)) {
+		else if (treePath.equals("")) {
 			query.append(_FINDER_COLUMN_C_T_TREEPATH_3);
 		}
 		else {
@@ -5602,7 +5597,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 			if (treePath == null) {
 				query.append(_FINDER_COLUMN_C_T_TREEPATH_1);
 			}
-			else if (treePath.equals(StringPool.BLANK)) {
+			else if (treePath.equals("")) {
 				query.append(_FINDER_COLUMN_C_T_TREEPATH_3);
 			}
 			else {
@@ -5669,7 +5664,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		if (treePath == null) {
 			query.append(_FINDER_COLUMN_C_T_TREEPATH_1);
 		}
-		else if (treePath.equals(StringPool.BLANK)) {
+		else if (treePath.equals("")) {
 			query.append(_FINDER_COLUMN_C_T_TREEPATH_3);
 		}
 		else {
@@ -5751,7 +5746,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 			msg.append(", name=");
 			msg.append(name);
 
-			msg.append(StringPool.CLOSE_CURLY_BRACE);
+			msg.append("}");
 
 			if (_log.isDebugEnabled()) {
 				_log.debug(msg.toString());
@@ -5816,7 +5811,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 			if (name == null) {
 				query.append(_FINDER_COLUMN_C_N_NAME_1);
 			}
-			else if (name.equals(StringPool.BLANK)) {
+			else if (name.equals("")) {
 				query.append(_FINDER_COLUMN_C_N_NAME_3);
 			}
 			else {
@@ -5923,7 +5918,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 			if (name == null) {
 				query.append(_FINDER_COLUMN_C_N_NAME_1);
 			}
-			else if (name.equals(StringPool.BLANK)) {
+			else if (name.equals("")) {
 				query.append(_FINDER_COLUMN_C_N_NAME_3);
 			}
 			else {
@@ -6206,7 +6201,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		msg.append(", parentOrganizationId=");
 		msg.append(parentOrganizationId);
 
-		msg.append(StringPool.CLOSE_CURLY_BRACE);
+		msg.append("}");
 
 		throw new NoSuchOrganizationException(msg.toString());
 	}
@@ -6269,7 +6264,7 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		msg.append(", parentOrganizationId=");
 		msg.append(parentOrganizationId);
 
-		msg.append(StringPool.CLOSE_CURLY_BRACE);
+		msg.append("}");
 
 		throw new NoSuchOrganizationException(msg.toString());
 	}
@@ -6593,8 +6588,10 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		setModelClass(Organization.class);
 
 		try {
-			Field field = ReflectionUtil.getDeclaredField(BasePersistenceImpl.class,
+			Field field = BasePersistenceImpl.class.getDeclaredField(
 					"_dbColumnNames");
+
+			field.setAccessible(true);
 
 			Map<String, String> dbColumnNames = new HashMap<String, String>();
 
@@ -7236,12 +7233,12 @@ public class OrganizationPersistenceImpl extends BasePersistenceImpl<Organizatio
 		for (Serializable primaryKey : uncachedPrimaryKeys) {
 			query.append((long)primaryKey);
 
-			query.append(StringPool.COMMA);
+			query.append(",");
 		}
 
 		query.setIndex(query.index() - 1);
 
-		query.append(StringPool.CLOSE_PARENTHESIS);
+		query.append(")");
 
 		String sql = query.toString();
 

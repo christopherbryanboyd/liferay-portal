@@ -14,6 +14,8 @@
 
 package com.liferay.message.boards.internal.service;
 
+import com.liferay.message.boards.internal.util.MBSubscriptionSender;
+import com.liferay.message.boards.internal.util.MailingListThreadLocal;
 import com.liferay.message.boards.kernel.model.MBCategory;
 import com.liferay.message.boards.kernel.model.MBCategoryConstants;
 import com.liferay.message.boards.kernel.model.MBDiscussion;
@@ -59,9 +61,7 @@ import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.messageboards.MBGroupServiceSettings;
 import com.liferay.portlet.messageboards.service.permission.MBPermission;
-import com.liferay.portlet.messageboards.util.MBSubscriptionSender;
 import com.liferay.portlet.messageboards.util.MBUtil;
-import com.liferay.portlet.messageboards.util.MailingListThreadLocal;
 import com.liferay.subscription.service.SubscriptionLocalService;
 
 import java.io.Serializable;

@@ -24,6 +24,7 @@ WorkflowDefinition workflowDefinition = (WorkflowDefinition)request.getAttribute
 String name = BeanParamUtil.getString(workflowDefinition, request, "name");
 int version = BeanParamUtil.getInteger(workflowDefinition, request, "version");
 String content = BeanParamUtil.getString(workflowDefinition, request, "content");
+boolean active = BeanParamUtil.getBoolean(workflowDefinition, request, "active");
 
 portletDisplay.setShowBackIcon(true);
 portletDisplay.setURLBack(redirect);
@@ -40,7 +41,7 @@ renderResponse.setTitle((workflowDefinition == null) ? LanguageUtil.get(request,
 		<div class="container-fluid-1280">
 			<div class="info-bar-item">
 				<c:choose>
-					<c:when test="<%= workflowDefinition.isActive() %>">
+					<c:when test="<%= active %>">
 						<span class="label label-info"><%= LanguageUtil.get(request, "published") %></span>
 					</c:when>
 					<c:otherwise>
@@ -82,7 +83,7 @@ renderResponse.setTitle((workflowDefinition == null) ? LanguageUtil.get(request,
 					<aui:icon cssClass="icon-monospaced sidenav-close text-default visible-xs-inline-block" image="times" markupView="lexicon" url="javascript:;" />
 				</div>
 
-				<liferay-ui:tabs cssClass="navbar-no-collapse" names="details,versions" refresh="<%= false %>" type="dropdown">
+				<liferay-ui:tabs cssClass="navbar-no-collapse" names="details,revision-history" refresh="<%= false %>" type="tabs">
 					<liferay-ui:section>
 						<div class="sidebar-body">
 							<h3 class="version">
@@ -113,6 +114,7 @@ renderResponse.setTitle((workflowDefinition == null) ? LanguageUtil.get(request,
 			<aui:input name="name" type="hidden" value="<%= name %>" />
 			<aui:input name="version" type="hidden" value="<%= version %>" />
 			<aui:input name="content" type="hidden" value="<%= content %>" />
+			<aui:input name="successMessage" type="hidden" value='<%= active ? LanguageUtil.get(request, "workflow-updated-successfully") : LanguageUtil.get(request, "workflow-published-successfully") %>' />
 
 			<div class="card-horizontal main-content-card">
 				<div class="card-row-padded">
@@ -135,6 +137,7 @@ renderResponse.setTitle((workflowDefinition == null) ? LanguageUtil.get(request,
 							</liferay-util:buffer>
 
 							<liferay-ui:message arguments="<%= importFileMark %>" key="write-your-definition-or-x" translateArguments="<%= false %>" />
+
 							<input class="workflow-definition-upload-source" id="<portlet:namespace />upload" type="file" />
 						</aui:col>
 
@@ -151,7 +154,7 @@ renderResponse.setTitle((workflowDefinition == null) ? LanguageUtil.get(request,
 				String taglibOnClick = "Liferay.fire('" + liferayPortletResponse.getNamespace() + "publishDefinition');";
 				%>
 
-				<aui:button cssClass="btn-lg" onClick="<%= taglibOnClick %>" primary="<%= true %>" value='<%= (workflowDefinition == null) ? "publish" : "update" %>' />
+				<aui:button cssClass="btn-lg" onClick="<%= taglibOnClick %>" primary="<%= true %>" value='<%= (workflowDefinition == null || !active) ? "publish" : "update" %>' />
 			</aui:button-row>
 		</aui:form>
 	</div>
@@ -170,10 +173,14 @@ renderResponse.setTitle((workflowDefinition == null) ? LanguageUtil.get(request,
 		}
 	).render();
 
+	var xmlFormatter = new Liferay.XMLFormatter();
+
 	var editorContentElement = A.one('#<portlet:namespace />content');
 
 	if (editorContentElement) {
-		contentEditor.set(STR_VALUE, editorContentElement.val());
+		var content = xmlFormatter.format(editorContentElement.val());
+
+		contentEditor.set(STR_VALUE, content);
 	}
 
 	var uploadFile = $('#<portlet:namespace />upload');

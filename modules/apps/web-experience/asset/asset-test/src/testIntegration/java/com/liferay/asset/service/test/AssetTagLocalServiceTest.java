@@ -18,10 +18,10 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.asset.kernel.exception.AssetTagException;
 import com.liferay.asset.kernel.exception.DuplicateTagException;
 import com.liferay.asset.kernel.model.AssetTag;
-import com.liferay.asset.kernel.model.AssetTagStats;
 import com.liferay.asset.kernel.service.AssetTagLocalServiceUtil;
-import com.liferay.asset.kernel.service.AssetTagStatsLocalServiceUtil;
-import com.liferay.asset.util.impl.AssetUtil;
+import com.liferay.asset.tag.stats.model.AssetTagStats;
+import com.liferay.asset.tag.stats.service.AssetTagStatsLocalServiceUtil;
+import com.liferay.asset.util.AssetHelper;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.ListTypeConstants;
@@ -145,7 +145,7 @@ public class AssetTagLocalServiceTest {
 				_group.getGroupId(), TestPropsValues.getUserId());
 
 		String stringWithInvalidCharacters = String.valueOf(
-			AssetUtil.INVALID_CHARACTERS);
+			AssetHelper.INVALID_CHARACTERS);
 
 		AssetTagLocalServiceUtil.addTag(
 			TestPropsValues.getUserId(), _group.getGroupId(),

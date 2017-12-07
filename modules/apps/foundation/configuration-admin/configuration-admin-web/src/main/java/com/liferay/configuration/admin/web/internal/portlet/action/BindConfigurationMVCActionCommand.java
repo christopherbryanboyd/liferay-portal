@@ -14,7 +14,7 @@
 
 package com.liferay.configuration.admin.web.internal.portlet.action;
 
-import com.liferay.configuration.admin.web.internal.constants.ConfigurationAdminPortletKeys;
+import com.liferay.configuration.admin.constants.ConfigurationAdminPortletKeys;
 import com.liferay.configuration.admin.web.internal.model.ConfigurationModel;
 import com.liferay.configuration.admin.web.internal.util.ConfigurationModelRetriever;
 import com.liferay.configuration.admin.web.internal.util.ConfigurationModelToDDMFormConverter;
@@ -210,6 +210,9 @@ public class BindConfigurationMVCActionCommand implements MVCActionCommand {
 			// LPS-69521
 
 			if (configurationModel.isFactory()) {
+				configuredProperties.put(
+					"configuration.cleaner.ignore", "true");
+
 				String pid = configuration.getPid();
 
 				int index = pid.lastIndexOf('.');

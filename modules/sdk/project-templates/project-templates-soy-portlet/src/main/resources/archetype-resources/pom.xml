@@ -68,20 +68,20 @@
 					</execution>
                     <execution>
 						<id>transpile-js</id>
+						<phase>process-classes</phase>
 						<goals>
 							<goal>gulp</goal>
 						</goals>
-						<phase>process-classes</phase>
 						<configuration>
 							<arguments>transpile-js</arguments>
 						</configuration>
 					</execution>
 					<execution>
+						<phase>process-classes</phase>
 						<id>config-js-modules</id>
 						<goals>
 							<goal>gulp</goal>
 						</goals>
-						<phase>process-classes</phase>
 						<configuration>
 							<arguments>config-js-modules</arguments>
 						</configuration>

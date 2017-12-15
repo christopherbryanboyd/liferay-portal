@@ -6,7 +6,7 @@
 	"devDependencies": {
 		"liferay-module-config-generator": "^1.2.1",
 		"metal-cli": "^4.0.1",
-		"gulp": "latest"
+		"gulp": "^3.9.0"
 	},
 	"name": "${artifactId}",
 	"version": "${version}"

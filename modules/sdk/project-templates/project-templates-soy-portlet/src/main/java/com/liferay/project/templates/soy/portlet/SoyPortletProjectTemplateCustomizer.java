@@ -45,7 +45,10 @@ public class SoyPortletProjectTemplateCustomizer
 		File destinationDir, ArchetypeGenerationResult result) {
 
 		if ((result.getCause() == null) && _projectTemplateArgs.isGradle()) {
-			Path projectPath = destinationDir.toPath();
+			Path destinationPath = destinationDir.toPath();
+
+			Path projectPath = destinationPath.resolve(
+				_projectTemplateArgs.getName());
 
 			Path gulpfileJs = projectPath.resolve("gulpfile.js");
 

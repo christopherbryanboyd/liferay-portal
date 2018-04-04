@@ -23,10 +23,10 @@ for (def o : request.getProperties()) {
 	def key = o.getKey()
 	if (key == 'buildType') {
 		def value = o.getValue()
-		
+
 		if (value == 'maven') {
 			isMaven = true
-		} 
+		}
 		else if (value == 'gradle') {
 			isGradle = true
 		}
@@ -37,14 +37,14 @@ def moduleDir = Paths.get(request.getOutputDirectory(), request.getArtifactId())
 
 if (isMaven) {
 	def gradleFile = moduleDir.resolve('build.gradle')
-	
+
 	if (Files.exists(gradleFile)) {
 		Files.delete(gradleFile)
 	}
 }
 else if (isGradle) {
 	def mavenFile = moduleDir.resolve('pom.xml')
-	
+
 	if (Files.exists(mavenFile)) {
 		Files.delete(mavenFile)
 	}

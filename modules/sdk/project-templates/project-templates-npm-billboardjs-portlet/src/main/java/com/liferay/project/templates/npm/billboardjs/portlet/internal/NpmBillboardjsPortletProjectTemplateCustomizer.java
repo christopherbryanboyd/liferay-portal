@@ -44,21 +44,21 @@ public class NpmBillboardjsPortletProjectTemplateCustomizer
 
 		Path projectDirPath = destinationDirPath.resolve(
 			projectTemplatesArgs.getName());
-		
+
 		if (!liferayVersion.equals("7.1")) {
 			String className = projectTemplatesArgs.getClassName();
 
 			ProjectTemplateCustomizer.deleteFileInPath(
 				className + "WebKeys.java", projectDirPath);
 		}
-		
-		if (projectTemplatesArgs.isMaven()) {
 
-			ProjectTemplateCustomizer.deleteFileInPath("build.gradle", projectDirPath);
+		if (projectTemplatesArgs.isMaven()) {
+			ProjectTemplateCustomizer.deleteFileInPath(
+				"build.gradle", projectDirPath);
 		}
 		else if (projectTemplatesArgs.isGradle()) {
-			
-			ProjectTemplateCustomizer.deleteFileInPath("pom.xml", projectDirPath);
+			ProjectTemplateCustomizer.deleteFileInPath(
+				"pom.xml", projectDirPath);
 		}
 	}
 

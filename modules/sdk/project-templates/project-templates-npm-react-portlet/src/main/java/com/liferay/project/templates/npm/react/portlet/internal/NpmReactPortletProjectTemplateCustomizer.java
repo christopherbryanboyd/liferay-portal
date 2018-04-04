@@ -39,11 +39,11 @@ public class NpmReactPortletProjectTemplateCustomizer
 		throws Exception {
 
 		String liferayVersion = projectTemplatesArgs.getLiferayVersion();
-		
+
 		Path destinationDirPath = destinationDir.toPath();
-		
+
 		Path projectDirPath = destinationDirPath.resolve(
-				projectTemplatesArgs.getName());
+			projectTemplatesArgs.getName());
 
 		if (!liferayVersion.equals("7.1")) {
 			String className = projectTemplatesArgs.getClassName();
@@ -53,12 +53,12 @@ public class NpmReactPortletProjectTemplateCustomizer
 		}
 
 		if (projectTemplatesArgs.isMaven()) {
-
-			ProjectTemplateCustomizer.deleteFileInPath("build.gradle", projectDirPath);
+			ProjectTemplateCustomizer.deleteFileInPath(
+				"build.gradle", projectDirPath);
 		}
 		else if (projectTemplatesArgs.isGradle()) {
-			
-			ProjectTemplateCustomizer.deleteFileInPath("pom.xml", projectDirPath);
+			ProjectTemplateCustomizer.deleteFileInPath(
+				"pom.xml", projectDirPath);
 		}
 	}
 

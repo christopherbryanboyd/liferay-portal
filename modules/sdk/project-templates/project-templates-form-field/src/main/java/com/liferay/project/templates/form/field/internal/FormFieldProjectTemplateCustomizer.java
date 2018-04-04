@@ -40,14 +40,14 @@ public class FormFieldProjectTemplateCustomizer
 
 		Path projectDirPath = destinationDirPath.resolve(
 			projectTemplatesArgs.getName());
-		
-		if (projectTemplatesArgs.isMaven()) {
 
-			ProjectTemplateCustomizer.deleteFileInPath("build.gradle", projectDirPath);
+		if (projectTemplatesArgs.isMaven()) {
+			ProjectTemplateCustomizer.deleteFileInPath(
+				"build.gradle", projectDirPath);
 		}
 		else if (projectTemplatesArgs.isGradle()) {
-			
-			ProjectTemplateCustomizer.deleteFileInPath("pom.xml", projectDirPath);
+			ProjectTemplateCustomizer.deleteFileInPath(
+				"pom.xml", projectDirPath);
 		}
 	}
 
@@ -56,7 +56,6 @@ public class FormFieldProjectTemplateCustomizer
 			ProjectTemplatesArgs projectTemplatesArgs,
 			ArchetypeGenerationRequest archetypeGenerationRequest)
 		throws Exception {
-
 	}
 
 }

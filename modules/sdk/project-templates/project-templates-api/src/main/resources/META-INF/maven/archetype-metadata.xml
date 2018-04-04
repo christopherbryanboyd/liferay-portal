@@ -26,8 +26,8 @@
 	<requiredProperties>
 		<requiredProperty key="author">
 		</requiredProperty>
-		<requiredProperty key="buildType">                                                                                           
-			<defaultValue>maven</defaultValue>                                                                                   
+		<requiredProperty key="buildType">
+			<defaultValue>maven</defaultValue>
 		</requiredProperty>
 		<requiredProperty key="className">
 		</requiredProperty>

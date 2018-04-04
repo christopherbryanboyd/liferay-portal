@@ -38,21 +38,21 @@ public class SoyPortletProjectTemplateCustomizer
 		throws Exception {
 
 		Path destinationDirPath = destinationDir.toPath();
-		
+
 		Path projectDirPath = destinationDirPath.resolve(
-				projectTemplatesArgs.getName());
+			projectTemplatesArgs.getName());
 
 		if (projectTemplatesArgs.isGradle()) {
-
 			Path gulpfileJsPath = projectDirPath.resolve("gulpfile.js");
 
 			Files.deleteIfExists(gulpfileJsPath);
 
-			ProjectTemplateCustomizer.deleteFileInPath("pom.xml", projectDirPath);
+			ProjectTemplateCustomizer.deleteFileInPath(
+				"pom.xml", projectDirPath);
 		}
 		else if (projectTemplatesArgs.isMaven()) {
-
-			ProjectTemplateCustomizer.deleteFileInPath("build.gradle", projectDirPath);
+			ProjectTemplateCustomizer.deleteFileInPath(
+				"build.gradle", projectDirPath);
 		}
 	}
 

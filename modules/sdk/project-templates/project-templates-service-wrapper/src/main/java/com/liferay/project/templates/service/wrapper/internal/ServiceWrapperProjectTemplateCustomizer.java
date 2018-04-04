@@ -18,7 +18,9 @@ import com.liferay.project.templates.ProjectTemplateCustomizer;
 import com.liferay.project.templates.ProjectTemplatesArgs;
 
 import java.io.File;
+
 import java.nio.file.Path;
+
 import java.util.Properties;
 
 import org.apache.maven.archetype.ArchetypeGenerationRequest;
@@ -35,19 +37,19 @@ public class ServiceWrapperProjectTemplateCustomizer
 			ProjectTemplatesArgs projectTemplatesArgs, File destinationDir,
 			ArchetypeGenerationResult archetypeGenerationResult)
 		throws Exception {
-		
+
 		Path destinationDirPath = destinationDir.toPath();
 
 		Path projectDirPath = destinationDirPath.resolve(
 			projectTemplatesArgs.getName());
-		
-		if (projectTemplatesArgs.isMaven()) {
 
-			ProjectTemplateCustomizer.deleteFileInPath("build.gradle", projectDirPath);
+		if (projectTemplatesArgs.isMaven()) {
+			ProjectTemplateCustomizer.deleteFileInPath(
+				"build.gradle", projectDirPath);
 		}
 		else if (projectTemplatesArgs.isGradle()) {
-			
-			ProjectTemplateCustomizer.deleteFileInPath("pom.xml", projectDirPath);
+			ProjectTemplateCustomizer.deleteFileInPath(
+				"pom.xml", projectDirPath);
 		}
 	}
 

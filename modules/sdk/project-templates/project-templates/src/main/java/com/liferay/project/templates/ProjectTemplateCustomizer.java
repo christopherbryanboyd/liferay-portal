@@ -34,7 +34,7 @@ public interface ProjectTemplateCustomizer {
 
 		FileUtil.deleteAllFileInPath(fileName, rootDirPath);
 	}
-	
+
 	public static void deleteFileInPath(String fileName, Path rootDirPath)
 		throws IOException {
 

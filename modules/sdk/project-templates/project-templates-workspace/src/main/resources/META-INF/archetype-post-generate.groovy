@@ -23,10 +23,10 @@ for (def o : request.getProperties()) {
 	def key = o.getKey()
 	if (key == 'buildType') {
 		def value = o.getValue()
-		
+
 		if (value == 'maven') {
 			isMaven = true
-		} 
+		}
 		else if (value == 'gradle') {
 			isGradle = true
 		}

@@ -16,13 +16,10 @@ package com.liferay.project.templates.workspace.internal;
 
 import com.liferay.project.templates.ProjectTemplateCustomizer;
 import com.liferay.project.templates.ProjectTemplatesArgs;
-import com.liferay.project.templates.WorkspaceUtil;
 
 import java.io.File;
 
 import java.nio.file.Path;
-
-import java.util.Properties;
 
 import org.apache.maven.archetype.ArchetypeGenerationRequest;
 import org.apache.maven.archetype.ArchetypeGenerationResult;
@@ -38,19 +35,19 @@ public class WorkspaceProjectTemplateCustomizer
 			ProjectTemplatesArgs projectTemplatesArgs, File destinationDir,
 			ArchetypeGenerationResult archetypeGenerationResult)
 		throws Exception {
-		
+
 		Path destinationDirPath = destinationDir.toPath();
 
 		Path projectDirPath = destinationDirPath.resolve(
 			projectTemplatesArgs.getName());
-		
-		if (projectTemplatesArgs.isMaven()) {
 
-			ProjectTemplateCustomizer.deleteAllFileInPath("build.gradle", projectDirPath);
+		if (projectTemplatesArgs.isMaven()) {
+			ProjectTemplateCustomizer.deleteAllFileInPath(
+				"build.gradle", projectDirPath);
 		}
 		else if (projectTemplatesArgs.isGradle()) {
-			
-			ProjectTemplateCustomizer.deleteAllFileInPath("pom.xml", projectDirPath);
+			ProjectTemplateCustomizer.deleteAllFileInPath(
+				"pom.xml", projectDirPath);
 		}
 	}
 
@@ -59,7 +56,6 @@ public class WorkspaceProjectTemplateCustomizer
 			ProjectTemplatesArgs projectTemplatesArgs,
 			ArchetypeGenerationRequest archetypeGenerationRequest)
 		throws Exception {
-		
 	}
 
 }

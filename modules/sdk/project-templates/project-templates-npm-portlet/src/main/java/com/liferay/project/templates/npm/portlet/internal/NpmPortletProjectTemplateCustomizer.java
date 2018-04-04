@@ -39,17 +39,26 @@ public class NpmPortletProjectTemplateCustomizer
 		throws Exception {
 
 		String liferayVersion = projectTemplatesArgs.getLiferayVersion();
+		
+		Path destinationDirPath = destinationDir.toPath();
+		
+		Path projectDirPath = destinationDirPath.resolve(
+				projectTemplatesArgs.getName());
 
 		if (!liferayVersion.equals("7.1")) {
 			String className = projectTemplatesArgs.getClassName();
 
-			Path destinationDirPath = destinationDir.toPath();
-
-			Path projectDirPath = destinationDirPath.resolve(
-				projectTemplatesArgs.getName());
-
 			ProjectTemplateCustomizer.deleteFileInPath(
 				className + "WebKeys.java", projectDirPath);
+		}
+
+		if (projectTemplatesArgs.isMaven()) {
+
+			ProjectTemplateCustomizer.deleteFileInPath("build.gradle", projectDirPath);
+		}
+		else if (projectTemplatesArgs.isGradle()) {
+			
+			ProjectTemplateCustomizer.deleteFileInPath("pom.xml", projectDirPath);
 		}
 	}
 

@@ -984,7 +984,7 @@ public class ProjectTemplateFilesTest {
 
 	private static final Set<String> _pomXmlProperties = new HashSet<>(
 		Arrays.asList(
-			"groupId", "artifactId", "project"));
+			"groupId", "artifactId", "project", "com"));
 	
 	private static final Pattern _projectTemplateDirNameSeparatorPattern =
 		Pattern.compile("(?:^|-)(\\w)");

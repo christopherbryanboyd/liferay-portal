@@ -37,6 +37,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -49,6 +50,7 @@ import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -59,6 +61,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  * @author Andrea Di Giorgi
@@ -160,8 +163,9 @@ public class ProjectTemplateFilesTest {
 			Path projectTemplateDirPath, String projectTemplateDirName,
 			Path archetypeResourcesDirPath, Properties bndProperties,
 			boolean requireAuthorProperty,
-			Set<String> archetypeResourcePropertyNames)
-		throws IOException {
+			Set<String> archetypeResourceExpressions,
+			DocumentBuilder documentBuilder)
+		throws IOException, SAXException {
 
 		Path archetypeMetadataXmlPath = projectTemplateDirPath.resolve(
 			"src/main/resources/META-INF/maven/archetype-metadata.xml");
@@ -250,10 +254,15 @@ public class ProjectTemplateFilesTest {
 		}
 
 		for (String name : requiredPropertyNames) {
+			Stream<String> stream = archetypeResourceExpressions.stream();
+
+			boolean anyMatch = stream.anyMatch(
+				expression -> expression.contains(name)
+			);
+
 			Assert.assertTrue(
 				"Unused \"" + name + "\" required property in " +
-					archetypeMetadataXmlPath,
-				archetypeResourcePropertyNames.contains(name));
+					archetypeMetadataXmlPath, anyMatch);
 		}
 
 		requiredPropertyNames.addAll(_archetypeMetadataXmlDefaultPropertyNames);
@@ -285,6 +294,7 @@ public class ProjectTemplateFilesTest {
 		}
 
 		Set<String> declaredVariables = new HashSet<>();
+
 		StringBuilder messageSuffix = new StringBuilder(
 			archetypeMetadataXmlPath.toString());
 
@@ -306,13 +316,43 @@ public class ProjectTemplateFilesTest {
 			}
 		}
 
-		for (String name : archetypeResourcePropertyNames) {
+		Path archetypePomXmlPath = projectTemplateDirPath.resolve(
+			"src/main/resources/archetype-resources/pom.xml");
+
+		Document document = documentBuilder.parse(archetypePomXmlPath.toFile());
+
+		Element projectElement = document.getDocumentElement();
+
+		Element propertiesElement = XMLTestUtil.getChildElement(
+			projectElement, "properties");
+
+		List<Element> propertyElements =
+			XMLTestUtil.getChildElements(propertiesElement);
+
+		Stream<Element> stream = propertyElements.stream();
+
+		stream.map(
+			Element::getNodeName
+		).forEach(
+			declaredVariables::add
+		);
+
+		for (String expression : archetypeResourceExpressions) {
 			Assert.assertTrue(
-				"Undeclared \"" + name + "\" property. Please add it to " +
+				"Undeclared \"" + expression + "\" property. Please add it to " +
 					archetypeMetadataXmlPath,
-				declaredVariables.contains(name) ||
-				requiredPropertyNames.contains(name));
+				_expressionContainedInList(declaredVariables, expression) ||
+				_expressionContainedInList(
+					requiredPropertyNames, expression) ||
+				_expressionContainedInList(
+					_archetypeMetadataXmlDefaultPropertyNames, expression));
 		}
+	}
+
+	private static boolean _expressionContainedInList(Collection<String> list, String expression) {
+		Stream<String> stream = list.stream();
+
+		return stream.anyMatch(expression::contains);
 	}
 
 	private Properties _testBndBnd(Path projectTemplateDirPath)
@@ -777,7 +817,7 @@ public class ProjectTemplateFilesTest {
 			projectTemplateDirName, projectTemplateDirPath);
 
 		final AtomicBoolean requireAuthorProperty = new AtomicBoolean();
-		final Set<String> archetypeResourcePropertyNames = new HashSet<>();
+		final Set<String> archetypeResourceExpressions = new HashSet<>();
 
 		Files.walkFileTree(
 			archetypeResourcesDirPath,
@@ -838,7 +878,7 @@ public class ProjectTemplateFilesTest {
 					if (_isTextFile(fileName, extension)) {
 						_testTextFile(
 							path, fileName, extension,
-							archetypeResourcePropertyNames);
+							archetypeResourceExpressions);
 					}
 
 					return FileVisitResult.CONTINUE;
@@ -849,7 +889,8 @@ public class ProjectTemplateFilesTest {
 		_testArchetypeMetadataXml(
 			projectTemplateDirPath, projectTemplateDirName,
 			archetypeResourcesDirPath, bndProperties,
-			requireAuthorProperty.get(), archetypeResourcePropertyNames);
+			requireAuthorProperty.get(), archetypeResourceExpressions,
+			documentBuilder);
 	}
 
 	private void _testPropertyValue(
@@ -862,7 +903,7 @@ public class ProjectTemplateFilesTest {
 
 	private void _testTextFile(
 			Path path, String fileName, String extension,
-			Set<String> archetypeResourcePropertyNames)
+			Set<String> archetypeResourceExpressions)
 		throws IOException {
 
 		String text = FileUtil.read(path);
@@ -914,13 +955,13 @@ public class ProjectTemplateFilesTest {
 		}
 
 		if (!fileName.endsWith(".js")) {
-			matcher = _archetypeResourcePropertyNamePattern.matcher(text);
+			matcher = _archetypeResourceExpressionPattern.matcher(text);
 
 			while (matcher.find()) {
 				String name = matcher.group(1);
 
 				if (!text.contains("#set ($" + name + " = ")) {
-					archetypeResourcePropertyNames.add(name);
+					archetypeResourceExpressions.add(name);
 				}
 			}
 		}
@@ -931,13 +972,13 @@ public class ProjectTemplateFilesTest {
 
 	private static final List<String>
 		_archetypeMetadataXmlDefaultPropertyNames = Arrays.asList(
-			"artifactId", "groupId", "package", "version");
+			"artifactId", "groupId", "package", "project", "version");
 	private static final Pattern _archetypeMetadataXmlIncludePattern =
 		Pattern.compile("<include>([^\\*]+?)<\\/include>");
 	private static final Pattern _archetypeMetadataXmlRequiredPropertyPattern =
 		Pattern.compile("<requiredProperty key=\"(\\w+)\">");
-	private static final Pattern _archetypeResourcePropertyNamePattern =
-		Pattern.compile("\\$\\{(\\w+)(\\}|\\.)");
+	private static final Pattern _archetypeResourceExpressionPattern =
+		Pattern.compile("\\$\\{([^\\}]*)\\}");
 	private static final Pattern _buildGradleDependencyPattern =
 		Pattern.compile(
 			"(compile(?:Only)?) group: \"(.+)\", name: \"(.+)\", " +

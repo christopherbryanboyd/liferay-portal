@@ -61,6 +61,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
 import org.xml.sax.SAXException;
 
 /**
@@ -97,6 +98,14 @@ public class ProjectTemplateFilesTest {
 		template = template.substring(0, pos);
 
 		_xmlDeclarations.put(fileName, template);
+	}
+
+	private static boolean _expressionContainedInList(
+		Collection<String> list, String expression) {
+
+		Stream<String> stream = list.stream();
+
+		return stream.anyMatch(expression::contains);
 	}
 
 	private List<BuildGradleDependency> _getBuildGradleDependencies(
@@ -257,12 +266,12 @@ public class ProjectTemplateFilesTest {
 			Stream<String> stream = archetypeResourceExpressions.stream();
 
 			boolean anyMatch = stream.anyMatch(
-				expression -> expression.contains(name)
-			);
+				expression -> expression.contains(name));
 
 			Assert.assertTrue(
 				"Unused \"" + name + "\" required property in " +
-					archetypeMetadataXmlPath, anyMatch);
+					archetypeMetadataXmlPath,
+				anyMatch);
 		}
 
 		requiredPropertyNames.addAll(_archetypeMetadataXmlDefaultPropertyNames);
@@ -326,8 +335,8 @@ public class ProjectTemplateFilesTest {
 		Element propertiesElement = XMLTestUtil.getChildElement(
 			projectElement, "properties");
 
-		List<Element> propertyElements =
-			XMLTestUtil.getChildElements(propertiesElement);
+		List<Element> propertyElements = XMLTestUtil.getChildElements(
+			propertiesElement);
 
 		Stream<Element> stream = propertyElements.stream();
 
@@ -339,20 +348,13 @@ public class ProjectTemplateFilesTest {
 
 		for (String expression : archetypeResourceExpressions) {
 			Assert.assertTrue(
-				"Undeclared \"" + expression + "\" property. Please add it to " +
+				"Undeclared \"${" + expression + "}\". Please add it to " +
 					archetypeMetadataXmlPath,
 				_expressionContainedInList(declaredVariables, expression) ||
-				_expressionContainedInList(
-					requiredPropertyNames, expression) ||
+				_expressionContainedInList(requiredPropertyNames, expression) ||
 				_expressionContainedInList(
 					_archetypeMetadataXmlDefaultPropertyNames, expression));
 		}
-	}
-
-	private static boolean _expressionContainedInList(Collection<String> list, String expression) {
-		Stream<String> stream = list.stream();
-
-		return stream.anyMatch(expression::contains);
 	}
 
 	private Properties _testBndBnd(Path projectTemplateDirPath)

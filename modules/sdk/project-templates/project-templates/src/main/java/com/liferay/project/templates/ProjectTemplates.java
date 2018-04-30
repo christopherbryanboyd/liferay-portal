@@ -73,8 +73,7 @@ public class ProjectTemplates {
 		throws IOException {
 
 		try (InputStream inputStream = jarFile.getInputStream(jarEntry);
-			JarInputStream jarInputStream =
-				new JarInputStream(inputStream)) {
+			JarInputStream jarInputStream = new JarInputStream(inputStream)) {
 
 			Manifest manifest = jarInputStream.getManifest();
 
@@ -116,7 +115,7 @@ public class ProjectTemplates {
 			}
 		}
 
-	return null;
+		return null;
 	}
 
 	public static Map<String, String> getTemplates() throws Exception {
@@ -285,8 +284,10 @@ public class ProjectTemplates {
 	private static String _getTemplateName(String name) {
 		String projectTemplatesString = "project.templates.";
 
-		int projectTemplatesEndIndex = name.indexOf(projectTemplatesString) +
-			projectTemplatesString.length();
+		int projectTemplatesEndIndex =
+			name.indexOf(projectTemplatesString) +
+				projectTemplatesString.length();
+
 		String templateName = name.substring(
 			projectTemplatesEndIndex, name.lastIndexOf('-'));
 

@@ -1097,7 +1097,7 @@ public class ProjectTemplatesTest {
 	@Test
 	public void testBuildTemplateSocialBookmark() throws Exception {
 		File gradleProjectDir = _buildTemplateWithGradle(
-			"social-bookmark", "Foo", "--package-name", "com.liferay.test");
+			"social-bookmark", "foo", "--package-name", "com.liferay.test");
 
 		_testExists(gradleProjectDir, "bnd.bnd");
 
@@ -1116,7 +1116,7 @@ public class ProjectTemplatesTest {
 			"foo=Foo");
 
 		File mavenProjectDir = _buildTemplateWithMaven(
-			"social-bookmark", "bookmark", "com.liferay", "-DclassName=Foo",
+			"social-bookmark", "foo", "com.liferay", "-DclassName=Foo",
 			"-Dpackage=com.liferay.test");
 
 		_buildProjects(gradleProjectDir, mavenProjectDir);

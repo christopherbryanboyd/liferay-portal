@@ -76,6 +76,15 @@ public class Archetyper {
 			ProjectTemplatesArgs projectTemplatesArgs, File destinationDir)
 		throws Exception {
 
+		return generateProject(
+			projectTemplatesArgs, destinationDir, new Properties());
+	}
+
+	public ArchetypeGenerationResult generateProject(
+			ProjectTemplatesArgs projectTemplatesArgs, File destinationDir,
+			Properties properties)
+		throws Exception {
+
 		List<File> archetypesDirs = projectTemplatesArgs.getArchetypesDirs();
 		String artifactId = projectTemplatesArgs.getName();
 		String author = projectTemplatesArgs.getAuthor();
@@ -115,8 +124,6 @@ public class Archetyper {
 		archetypeGenerationRequest.setInteractiveMode(false);
 		archetypeGenerationRequest.setOutputDirectory(destinationDir.getPath());
 		archetypeGenerationRequest.setPackage(packageName);
-
-		Properties properties = new Properties();
 
 		String buildType = "gradle";
 

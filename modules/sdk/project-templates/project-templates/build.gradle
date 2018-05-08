@@ -61,6 +61,7 @@ configurations {
 
 dependencies {
 	compileInclude group: "com.beust", name: "jcommander", version: "1.72"
+	compileInclude project(":apps:collaboration:social:social-bookmarks-api")
 
 	compileOnly group: "org.apache.maven.archetype", name: "archetype-common", version: "2.4"
 

@@ -1123,7 +1123,8 @@ public class ProjectTemplatesTest {
 	@Test
 	public void testBuildTemplateSocialBookmark() throws Exception {
 		File gradleProjectDir = _buildTemplateWithGradle(
-			"social-bookmark", "Foo", "--package-name", "com.liferay.test");
+			"social-bookmark", "foo", "--package-name", "com.liferay.test",
+			"--liferayVersion", "7.1");
 
 		_testExists(gradleProjectDir, "bnd.bnd");
 
@@ -1142,8 +1143,8 @@ public class ProjectTemplatesTest {
 			"foo=Foo");
 
 		File mavenProjectDir = _buildTemplateWithMaven(
-			"social-bookmark", "bookmark", "com.liferay", "-DclassName=Foo",
-			"-Dpackage=com.liferay.test");
+			"social-bookmark", "foo", "com.liferay", "-DclassName=Foo",
+			"-Dpackage=com.liferay.test", "-DliferayVersion=7.1");
 
 		_buildProjects(gradleProjectDir, mavenProjectDir);
 	}
@@ -2320,6 +2321,7 @@ public class ProjectTemplatesTest {
 		String packageName = name.replace('-', '.');
 		String service = null;
 		String version = "7.0";
+		Properties properties = new Properties();
 
 		for (String arg : args) {
 			int pos = arg.indexOf('=');
@@ -2357,6 +2359,9 @@ public class ProjectTemplatesTest {
 			}
 			else if (key.equals("liferayVersion")) {
 				version = value;
+			}
+			else {
+				properties.put(key, value);
 			}
 		}
 
@@ -2405,7 +2410,7 @@ public class ProjectTemplatesTest {
 		Archetyper archetyper = new Archetyper();
 
 		archetyper.generateProject(
-			projectTemplatesArgs, archetyperDestinationDir);
+			projectTemplatesArgs, archetyperDestinationDir, properties);
 
 		File archetyperProjectDir = new File(archetyperDestinationDir, name);
 

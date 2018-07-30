@@ -2632,6 +2632,10 @@ public class ProjectTemplatesTest {
 			"spring-mvc-portlet", "foo", "com.test", "-DclassName=Foo",
 			"-Dpackage=foo");
 
+		if (!_TEST_BUILDS) {
+			return;
+		}
+
 		_buildProjects(gradleProjectDir, mavenProjectDir);
 
 		ZipFile zipFile = null;
@@ -3585,6 +3589,10 @@ public class ProjectTemplatesTest {
 			File mavenOutputDir, String... gradleTaskPath)
 		throws Exception {
 
+		if (!_TEST_BUILDS) {
+			return;
+		}
+
 		_executeGradle(gradleProjectDir, gradleTaskPath);
 
 		Path gradleOutputPath = FileTestUtil.getFile(
@@ -4245,6 +4253,10 @@ public class ProjectTemplatesTest {
 	private static void _testContainsJarEntry(File file, String name)
 		throws IOException {
 
+		if (!_TEST_BUILDS) {
+			return;
+		}
+
 		try (JarFile jarFile = new JarFile(file)) {
 			Assert.assertNotNull(jarFile.getJarEntry(name));
 		}
@@ -4871,6 +4883,10 @@ public class ProjectTemplatesTest {
 			String name, String packageName, final String projectPath)
 		throws Exception {
 
+		if (!_TEST_BUILDS) {
+			return;
+		}
+
 		String apiProjectName = name + "-api";
 		final String serviceProjectName = name + "-service";
 
@@ -5109,6 +5125,9 @@ public class ProjectTemplatesTest {
 	};
 
 	private static final String _SPRING_MVC_PORTLET_VERSION = "4.1.9.RELEASE";
+
+	private static final boolean _TEST_BUILDS = System.getProperty(
+		"test.builds") != null;
 
 	private static final boolean _TEST_DEBUG_BUNDLE_DIFFS = Boolean.getBoolean(
 		"test.debug.bundle.diffs");

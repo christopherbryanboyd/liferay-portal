@@ -14,17 +14,9 @@
 
 package com.liferay.portal.tools.theme.builder;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.ParameterException;
-
-import com.liferay.portal.tools.theme.builder.internal.util.FileUtil;
-import com.liferay.portal.tools.theme.builder.internal.util.Validator;
-
 import java.io.File;
 import java.io.IOException;
-
 import java.net.URI;
-
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -34,9 +26,13 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
+import com.liferay.portal.tools.theme.builder.internal.util.FileUtil;
+import com.liferay.portal.tools.theme.builder.internal.util.Validator;
 
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.Thumbnails.Builder;
@@ -52,6 +48,8 @@ public class ThemeBuilder {
 	public static final String UNSTYLED = "_unstyled";
 
 	public static void main(String[] args) throws Exception {
+		System.out.println("ThemeBuilder main");
+		
 		ThemeBuilderArgs themeBuilderArgs = new ThemeBuilderArgs();
 
 		JCommander jCommander = new JCommander(themeBuilderArgs);

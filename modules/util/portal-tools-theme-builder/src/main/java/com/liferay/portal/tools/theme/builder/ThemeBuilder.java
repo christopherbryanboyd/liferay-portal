@@ -14,17 +14,9 @@
 
 package com.liferay.portal.tools.theme.builder;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.ParameterException;
-
-import com.liferay.portal.tools.theme.builder.internal.util.FileUtil;
-import com.liferay.portal.tools.theme.builder.internal.util.Validator;
-
 import java.io.File;
 import java.io.IOException;
-
 import java.net.URI;
-
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -34,9 +26,13 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
+import com.liferay.portal.tools.theme.builder.internal.util.FileUtil;
+import com.liferay.portal.tools.theme.builder.internal.util.Validator;
 
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.Thumbnails.Builder;
@@ -224,8 +220,9 @@ public class ThemeBuilder {
 					String.valueOf(themePath.getFileName()));
 
 				if (extension.equalsIgnoreCase("jar")) {
-					_copyTheme(
-						fileSystem.getPath("/META-INF/resources/" + themeName));
+					Path path = fileSystem.getPath("/META-INF/resources/" + themeName);
+					path = path.toAbsolutePath();
+					_copyTheme(path);
 				}
 				else {
 					_copyTheme(fileSystem.getPath("/"));

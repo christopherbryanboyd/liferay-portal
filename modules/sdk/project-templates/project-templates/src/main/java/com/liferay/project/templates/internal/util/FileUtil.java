@@ -18,11 +18,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
@@ -34,10 +32,8 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
-
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -207,7 +203,7 @@ public class FileUtil {
 	public static Path getJarPath() throws URISyntaxException {
 		URI jarUri = _getJarUri();
 
-		return Paths.get(jarUri.getPath());
+		return Paths.get(jarUri);
 	}
 
 	public static String getManifestProperty(File file, String name)
@@ -344,7 +340,7 @@ public class FileUtil {
 
 		URI jarUri = _getJarUri();
 
-		Path jarPath = Paths.get(jarUri.getPath());
+		Path jarPath = Paths.get(jarUri);
 
 		FileSystem fileSystem = FileSystems.newFileSystem(jarPath, null);
 

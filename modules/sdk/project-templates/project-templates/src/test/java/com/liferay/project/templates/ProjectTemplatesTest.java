@@ -4189,10 +4189,21 @@ public class ProjectTemplatesTest {
 						}
 
 						content = content.replace(
-							"repositories {", "repositories {\tmavenLocal()\n");
+							"repositories {", "repositories {" +
+								System.lineSeparator() + "\t\t" + "mavenLocal()" +
+								System.lineSeparator() + "\t\t" + "maven { " +
+								System.lineSeparator() + "\t\t\turl " + "\"" + System.getProperty("maven.repo.local") + "\"" +
+								System.lineSeparator() + "\t\t}" +
+								System.lineSeparator());
 
 						Files.write(
 							path, content.getBytes(StandardCharsets.UTF_8));
+
+						if (content.contains("repositories") &&
+							fileName.equals("settings.gradle")) {
+
+							System.err.println(content);
+						}
 					}
 
 					return FileVisitResult.CONTINUE;

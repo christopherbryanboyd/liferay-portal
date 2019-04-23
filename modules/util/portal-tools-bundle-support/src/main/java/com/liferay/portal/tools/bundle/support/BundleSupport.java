@@ -34,6 +34,8 @@ import java.util.ServiceLoader;
 public class BundleSupport {
 
 	public static void main(String[] args) throws Exception {
+		_fixArgs(args);
+
 		BundleSupportArgs bundleSupportArgs = new BundleSupportArgs();
 
 		JCommander jCommander = new JCommander(bundleSupportArgs);
@@ -79,6 +81,22 @@ public class BundleSupport {
 			}
 
 			_printHelp(jCommander);
+		}
+	}
+
+	private static void _fixArgs(String[] args) {
+		for (int x = 0; x < args.length; x++) {
+			if ("--provided-modules".equals(args[x]) &&
+				((x + 1) != args.length)) {
+
+				String incorrectSeparator = File.pathSeparator + File.separator;
+				String correctSeparator = "," + File.separator;
+
+				args[x + 1] = args[x + 1].replace(
+					incorrectSeparator, correctSeparator);
+
+				break;
+			}
 		}
 	}
 

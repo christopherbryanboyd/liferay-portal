@@ -20,7 +20,6 @@ import aQute.bnd.main.bnd;
 import aQute.bnd.osgi.Domain;
 
 import com.liferay.maven.executor.MavenExecutor;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.project.templates.internal.ProjectGenerator;
 import com.liferay.project.templates.internal.util.FileUtil;
 import com.liferay.project.templates.internal.util.ProjectTemplatesUtil;
@@ -1610,10 +1609,9 @@ public class ProjectTemplatesTest {
 			"public class FooPortletKeys");
 		_testContains(
 			gradleProjectDir, "src/main/java/foo/test/portlet/FooPortlet.java",
-			"package foo.test.portlet;", "javax.portlet.display-name=Foo",
+			"package foo.test.portlet;",
 			"javax.portlet.name=\" + FooPortletKeys.Foo",
-			"public class FooPortlet extends GenericPortlet {",
-			"printWriter.print(\"Hello from Foo");
+			"public class FooPortlet extends MVCPortlet {");
 
 		File mavenProjectDir = _buildTemplateWithMaven(
 			"portlet", "foo.test", "com.test", "-DclassName=Foo",
@@ -1883,9 +1881,8 @@ public class ProjectTemplatesTest {
 		_testContains(
 			gradleProjectDir,
 			"src/main/java/portlet/portlet/PortletPortlet.java",
-			"package portlet.portlet;", "javax.portlet.display-name=Portlet",
-			"public class PortletPortlet extends GenericPortlet {",
-			"printWriter.print(\"Hello from Portlet");
+			"package portlet.portlet;",
+			"public class PortletPortlet extends MVCPortlet {");
 
 		File mavenProjectDir = _buildTemplateWithMaven(
 			"portlet", "portlet", "com.test", "-DclassName=Portlet",
@@ -3733,7 +3730,7 @@ public class ProjectTemplatesTest {
 				"custom.name.project.templates.foo.bar-1.2.3.jar"));
 
 		Map<String, String> customTemplatesMap = ProjectTemplates.getTemplates(
-			ListUtil.toList(customArchetypesDir));
+			customArchetypesDir);
 
 		Map<String, String> templatesMap = ProjectTemplates.getTemplates();
 
@@ -3970,6 +3967,12 @@ public class ProjectTemplatesTest {
 
 		String archetypeArtifactId =
 			"com.liferay.project.templates." + template.replace('-', '.');
+
+		if (archetypeArtifactId.equals(
+				"com.liferay.project.templates.portlet")) {
+
+			archetypeArtifactId = "com.liferay.project.templates.mvc.portlet";
+		}
 
 		completeArgs.add("-DarchetypeArtifactId=" + archetypeArtifactId);
 

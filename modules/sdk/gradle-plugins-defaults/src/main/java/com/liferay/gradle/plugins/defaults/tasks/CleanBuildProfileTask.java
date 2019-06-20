@@ -16,6 +16,7 @@ package com.liferay.gradle.plugins.defaults.tasks;
 
 import com.google.api.client.repackaged.com.google.common.base.Objects;
 
+import com.liferay.gradle.plugins.defaults.internal.util.BuildProfileUtil;
 import com.liferay.gradle.plugins.defaults.internal.util.GradlePluginsDefaultsUtil;
 
 import java.io.File;
@@ -23,25 +24,13 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import java.nio.file.Path;
-
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
 
 import org.gradle.api.DefaultTask;
-import org.gradle.api.DomainObjectSet;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.ConfigurationContainer;
-import org.gradle.api.artifacts.DependencySet;
-import org.gradle.api.artifacts.ProjectDependency;
-import org.gradle.api.artifacts.ResolvedConfiguration;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.tasks.TaskAction;
 
@@ -56,9 +45,10 @@ public class CleanBuildProfileTask extends DefaultTask {
 
 	@TaskAction
 	public void cleanBuildProfile() throws Exception {
-		Project project = getProject();
+		Project currentProject = getProject();
 
-		Project sourceProject = _getSourceProject();
+		Project sourceProject = BuildProfileUtil.getSourceProject(
+			currentProject);
 
 		String profileName = System.getProperty(
 			SetBuildProfileTask.BUILD_PROFILE_NAME_PROPERTY_NAME);
@@ -91,7 +81,8 @@ public class CleanBuildProfileTask extends DefaultTask {
 				": {}",
 			profileName);
 
-		Set<Project> projectDependencies = _getProjectDependencies(project);
+		Collection<Project> projectDependencies =
+			BuildProfileUtil.getProjectDependencies(currentProject);
 
 		for (Project projectDependency : projectDependencies) {
 			File lfrBuildFile = new File(
@@ -116,75 +107,6 @@ public class CleanBuildProfileTask extends DefaultTask {
 				throw new GradleException(message, ioe);
 			}
 		}
-	}
-
-	private Set<Project> _getProjectDependencies(Project project) {
-		Set<Project> projects = new LinkedHashSet<>();
-
-		projects.add(project);
-
-		Set<ConfigurationContainer> configurationContainers = new HashSet<>();
-
-		Map<String, Project> childProjects = project.getChildProjects();
-
-		for (Project childProject : childProjects.values()) {
-			projects.add(childProject);
-
-			configurationContainers.add(childProject.getConfigurations());
-		}
-
-		ConfigurationContainer configurationContainer =
-			project.getConfigurations();
-
-		configurationContainers.add(configurationContainer);
-
-		configurationContainers.stream(
-		).flatMap(
-			Set::stream
-		).forEach(
-			c -> _processConfiguration(projects, c)
-		);
-
-		return projects;
-	}
-
-	private Project _getSourceProject() {
-		String sourceProjectName = System.getProperty(
-			SetBuildProfileTask.SOURCE_PROJECT_PATH_KEY);
-
-		Project currentProject = getProject();
-		Project foundProject = null;
-
-		if (sourceProjectName == null) {
-			Project rootProject = currentProject.getRootProject();
-
-			Collection<Project> allProjects = rootProject.getAllprojects();
-
-			for (Project subproject : allProjects) {
-				File subprojectDir = subproject.getProjectDir();
-
-				Path subprojectPath = subprojectDir.toPath();
-
-				if (subprojectPath.equals(
-						SetBuildProfileTask.CURRENT_WORKING_PATH)) {
-
-					foundProject = subproject;
-
-					break;
-				}
-			}
-
-			if (foundProject != null) {
-				System.setProperty(
-					SetBuildProfileTask.SOURCE_PROJECT_PATH_KEY,
-					foundProject.getPath());
-			}
-		}
-		else {
-			foundProject = currentProject.findProject(sourceProjectName);
-		}
-
-		return foundProject;
 	}
 
 	private void _processBuildFile(
@@ -227,32 +149,6 @@ public class CleanBuildProfileTask extends DefaultTask {
 				lfrBuildFile.getAbsolutePath());
 
 			lfrBuildFile.delete();
-		}
-	}
-
-	private void _processConfiguration(
-		Collection<Project> projects, Configuration c) {
-
-		DependencySet dependencySet = c.getDependencies();
-
-		DomainObjectSet<ProjectDependency> projectDependencies =
-			dependencySet.withType(ProjectDependency.class);
-
-		if (!projectDependencies.isEmpty()) {
-			ResolvedConfiguration rc = c.getResolvedConfiguration();
-
-			rc.getFirstLevelModuleDependencies();
-
-			projectDependencies.stream(
-			).map(
-				ProjectDependency::getDependencyProject
-			).map(
-				this::_getProjectDependencies
-			).flatMap(
-				Collection::stream
-			).forEach(
-				projects::add
-			);
 		}
 	}
 

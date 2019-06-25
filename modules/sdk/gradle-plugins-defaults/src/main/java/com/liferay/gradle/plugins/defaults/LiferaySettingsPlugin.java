@@ -83,6 +83,25 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 		}
 	}
 
+	protected void includeProject(
+		Settings settings, Path projectDirPath, Path projectPathRootDirPath,
+		String projectPathPrefix) {
+
+		Path relativePath = projectPathRootDirPath.relativize(projectDirPath);
+
+		String projectPath = relativePath.toString();
+
+		projectPath =
+			projectPathPrefix + ":" +
+				projectPath.replace(File.separatorChar, ':');
+
+		settings.include(new String[] {projectPath});
+
+		ProjectDescriptor projectDescriptor = settings.findProject(projectPath);
+
+		projectDescriptor.setProjectDir(projectDirPath.toFile());
+	}
+
 	private Set<Path> _getDirPaths(String key, Path rootDirPath) {
 		String dirNamesString = System.getProperty(key);
 
@@ -143,25 +162,6 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 		}
 
 		return ProjectDirType.UNKNOWN;
-	}
-
-	private void _includeProject(
-		Settings settings, Path projectDirPath, Path projectPathRootDirPath,
-		String projectPathPrefix) {
-
-		Path relativePath = projectPathRootDirPath.relativize(projectDirPath);
-
-		String projectPath = relativePath.toString();
-
-		projectPath =
-			projectPathPrefix + ":" +
-				projectPath.replace(File.separatorChar, ':');
-
-		settings.include(new String[] {projectPath});
-
-		ProjectDescriptor projectDescriptor = settings.findProject(projectPath);
-
-		projectDescriptor.setProjectDir(projectDirPath.toFile());
 	}
 
 	private void _includeProjects(
@@ -238,7 +238,7 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 						}
 					}
 
-					_includeProject(
+					includeProject(
 						settings, dirPath, projectPathRootDirPath,
 						projectPathPrefix);
 

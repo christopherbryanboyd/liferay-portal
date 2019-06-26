@@ -20,7 +20,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.gradle.api.DefaultTask;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -33,11 +32,9 @@ import org.gradle.api.artifacts.ResolvedConfiguration;
  * @author Christopher Bryan Boyd
  * @author Gregory Amerson
  */
-public abstract class BaseIDEProfileTask extends DefaultTask {
+public class GradleDependencyUtil {
 
-	public static final String IDE_PROFILES_FILENAME = ".ide-profiles";
-
-	protected Collection<Project> getDependencyProjects(Project project) {
+	public static Collection<Project> getDependencyProjects(Project project) {
 		Set<Project> projects = new LinkedHashSet<>();
 
 		projects.add(project);
@@ -70,7 +67,7 @@ public abstract class BaseIDEProfileTask extends DefaultTask {
 	protected static final String SOURCE_PROJECT_PATH_KEY =
 		"source.project.path";
 
-	private void _collectDependencyProjects(
+	private static void _collectDependencyProjects(
 		Collection<Project> dependencyProjects, Configuration configuration) {
 
 		DependencySet dependencySet = configuration.getDependencies();
@@ -88,7 +85,7 @@ public abstract class BaseIDEProfileTask extends DefaultTask {
 			).map(
 				ProjectDependency::getDependencyProject
 			).map(
-				this::getDependencyProjects
+				GradleDependencyUtil::getDependencyProjects
 			).flatMap(
 				Collection::stream
 			).forEach(

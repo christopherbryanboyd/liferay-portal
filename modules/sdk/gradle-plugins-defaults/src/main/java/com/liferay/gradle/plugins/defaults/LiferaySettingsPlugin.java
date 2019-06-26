@@ -16,7 +16,10 @@ package com.liferay.gradle.plugins.defaults;
 
 import com.liferay.gradle.plugins.defaults.internal.util.GradlePluginsDefaultsUtil;
 import com.liferay.gradle.plugins.defaults.internal.util.GradleUtil;
+import com.liferay.gradle.plugins.defaults.tasks.BaseIDEProfileTask;
 import com.liferay.gradle.util.Validator;
+
+import bsh.commands.dir;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,20 +29,29 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.Set;
 
 import org.gradle.api.Plugin;
+import org.gradle.api.Project;
 import org.gradle.api.UncheckedIOException;
 import org.gradle.api.initialization.ProjectDescriptor;
 import org.gradle.api.initialization.Settings;
+import org.gradle.api.invocation.Gradle;
 
 /**
  * @author Andrea Di Giorgi
+ * @author Christopher Bryan Boyd
+ * @author Gregory Amerson
  */
 public class LiferaySettingsPlugin implements Plugin<Settings> {
 
@@ -48,6 +60,45 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 
 	@Override
 	public void apply(Settings settings) {
+		Gradle gradle = settings.getGradle();
+		
+		String projectPathsProperty = System.getProperty("liferay.project.paths");
+		if (projectPathsProperty != null) {
+			String[] projectPaths = projectPathsProperty.split(",");
+			
+			gradle.projectsEvaluated((a) -> {
+				
+				Collection<String> projectNamesToKeep = new HashSet<>();
+				
+				for (String projectPath : projectPaths) {
+					
+					File projectFile = new File(projectPath);
+					
+					if (projectFile.exists()) {
+						//String sourceProjectGradlePath = settings.findProject(settings.getStartParameter().getProjectDir()).getPath();
+						String sourceProjectGradlePath = settings.findProject(projectFile).getPath();							
+						
+						Collection<Project> projects = gradle.getRootProject().getAllprojects();
+						
+						Project sourceProject = projects.stream()
+								.filter(p -> p.getPath().equals(sourceProjectGradlePath))
+								.findAny()
+								.orElse(null);
+						
+						projects = BaseIDEProfileTask.getDependencyProjects(sourceProject);
+						
+						Collection<Project> projectsWithParents = getProjectsWithParents(projects);
+						
+						projectNamesToKeep.addAll(projectsWithParents.stream().map(Project::getName).collect(Collectors.toSet()));
+						
+					}
+					retainProjects(gradle.getRootProject().getChildProjects(), projectNamesToKeep);
+				}
+
+			});
+			
+		}
+		
 		File rootDir = settings.getRootDir();
 
 		Path rootDirPath = rootDir.toPath();
@@ -71,15 +122,50 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 		try {
 			Path projectPathRootDirPath = rootDirPath;
 
-			if (_isPortalRootDirPath(rootDirPath)) {
+			if (isPortalRootDirPath(rootDirPath)) {
 				projectPathRootDirPath = rootDirPath.resolve("modules");
 			}
 
 			_includeProjects(
 				settings, projectPathRootDirPath, projectPathPrefix);
+
 		}
 		catch (IOException ioe) {
 			throw new UncheckedIOException(ioe);
+		}
+	}
+	
+	private Collection<Project> getProjectsWithParents(Collection<Project> projects) {
+		Collection<Project> projectsWithParents = new HashSet<>(projects);
+		for (Project project : projects) {
+			projectsWithParents.add(project);
+			while ((project = project.getParent()) != null) {
+				if (!projectsWithParents.contains(project)) {
+					projectsWithParents.add(project);
+				}
+			}
+		}
+		return projectsWithParents;
+		
+	}
+	
+	private void retainProjects(Map<String, Project> childProjects, Collection<String> projectNamesToKeep) {
+		Collection<String> projectsToRemove = new HashSet<>();
+		for (Entry<String, Project> childProjectEntry : childProjects.entrySet()) {
+			Project childProject = childProjectEntry.getValue();
+			
+			Map<String, Project> subChildProjects = childProject.getChildProjects();
+			
+			if (subChildProjects != null && !subChildProjects.isEmpty()) {
+				retainProjects(subChildProjects, projectNamesToKeep);
+			}
+			
+			if (!projectNamesToKeep.contains(childProjectEntry.getKey())) {
+				projectsToRemove.add(childProjectEntry.getKey());
+			}
+		}
+		for (String projectNameToRemove : projectsToRemove) {
+			childProjects.remove(projectNameToRemove);
 		}
 	}
 
@@ -87,6 +173,36 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 		Settings settings, Path projectDirPath, Path projectPathRootDirPath,
 		String projectPathPrefix) {
 
+		String projectGradlePath = convertPathToGradlePath(projectDirPath, projectPathRootDirPath, projectPathPrefix);
+		
+		addGradlePathToModel(projectDirPath, projectGradlePath, settings);
+	}
+	
+	protected void addGradlePathToModel(Path projectDirPath, String projectPath, Settings settings) {
+		settings.include(new String[] {projectPath});
+
+		ProjectDescriptor projectDescriptor = settings.findProject(projectPath);
+
+		projectDescriptor.setProjectDir(projectDirPath.toFile());
+	}
+	
+	protected Path convertGradlePathToPath(Path projectPathRootDirPath, String gradlePath, String projectPathPrefix) {
+		if (Validator.isNotNull(projectPathPrefix)) {
+			gradlePath = gradlePath.replace(projectPathPrefix + ":", "");
+			
+		}
+		
+		gradlePath = gradlePath.replace(':', File.separatorChar);
+		
+		if (gradlePath.charAt(0) == File.separatorChar) {
+			gradlePath = gradlePath.substring(1);
+		}
+		
+		return projectPathRootDirPath.resolve(gradlePath);
+	}
+	
+	protected String convertPathToGradlePath(Path projectDirPath, Path projectPathRootDirPath,
+			String projectPathPrefix) {
 		Path relativePath = projectPathRootDirPath.relativize(projectDirPath);
 
 		String projectPath = relativePath.toString();
@@ -94,12 +210,8 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 		projectPath =
 			projectPathPrefix + ":" +
 				projectPath.replace(File.separatorChar, ':');
-
-		settings.include(new String[] {projectPath});
-
-		ProjectDescriptor projectDescriptor = settings.findProject(projectPath);
-
-		projectDescriptor.setProjectDir(projectDirPath.toFile());
+		
+		return projectPath;
 	}
 
 	private Set<Path> _getDirPaths(String key, Path rootDirPath) {
@@ -181,7 +293,7 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 		final Set<ProjectDirType> excludedProjectDirTypes = _getFlags(
 			"build.exclude.", ProjectDirType.class);
 
-		Files.walkFileTree(
+			Files.walkFileTree(
 			projectPathRootDirPath,
 			new SimpleFileVisitor<Path>() {
 
@@ -237,7 +349,7 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 							return FileVisitResult.SKIP_SUBTREE;
 						}
 					}
-
+					
 					includeProject(
 						settings, dirPath, projectPathRootDirPath,
 						projectPathPrefix);
@@ -247,8 +359,12 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 
 			});
 	}
+	
+	protected void addProjectToModel(Path dirPath, Runnable runnable) {
+		runnable.run();
+	}
 
-	private boolean _isPortalRootDirPath(Path dirPath) {
+	protected boolean isPortalRootDirPath(Path dirPath) {
 		if (!Files.exists(dirPath.resolve("modules"))) {
 			return false;
 		}

@@ -2,14 +2,7 @@ buildscript {
 	apply from: "build-buildscript.gradle", to: buildscript
 }
 
-String ideProfile = System.getProperty("ide.profile")
-
-if (ideProfile) {
-	apply plugin: "com.liferay.settings.ide.plugin"
-}
-else {
-	apply plugin: "com.liferay.settings.plugin"
-}
+apply plugin: "com.liferay.settings.plugin"
 
 String testClassGroupIndex = System.getProperty("test.class.group.index")
 

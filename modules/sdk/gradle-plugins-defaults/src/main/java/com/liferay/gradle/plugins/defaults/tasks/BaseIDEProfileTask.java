@@ -37,7 +37,7 @@ public abstract class BaseIDEProfileTask extends DefaultTask {
 
 	public static final String IDE_PROFILES_FILENAME = ".ide-profiles";
 
-	protected Collection<Project> getDependencyProjects(Project project) {
+	public static Collection<Project> getDependencyProjects(Project project) {
 		Set<Project> projects = new LinkedHashSet<>();
 
 		projects.add(project);
@@ -70,7 +70,7 @@ public abstract class BaseIDEProfileTask extends DefaultTask {
 	protected static final String SOURCE_PROJECT_PATH_KEY =
 		"source.project.path";
 
-	private void _collectDependencyProjects(
+	private static void _collectDependencyProjects(
 		Collection<Project> dependencyProjects, Configuration configuration) {
 
 		DependencySet dependencySet = configuration.getDependencies();
@@ -88,7 +88,7 @@ public abstract class BaseIDEProfileTask extends DefaultTask {
 			).map(
 				ProjectDependency::getDependencyProject
 			).map(
-				this::getDependencyProjects
+				BaseIDEProfileTask::getDependencyProjects
 			).flatMap(
 				Collection::stream
 			).forEach(

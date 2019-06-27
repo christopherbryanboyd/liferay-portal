@@ -3,8 +3,8 @@
 .classpath
 .gh.json
 .gradle/
-.ide-profiles
 .idea/
+.ide-profiles
 .project
 .sass-cache/
 .settings/

@@ -15,6 +15,7 @@
 .ant_targets
 .eslintrc
 .gh.json
+.ide-profiles
 .sass-cache
 .sass_cache_*.css
 /*.ant-*

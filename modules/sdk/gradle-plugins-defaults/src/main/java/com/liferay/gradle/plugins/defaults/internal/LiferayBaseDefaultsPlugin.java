@@ -20,6 +20,7 @@ import com.liferay.gradle.plugins.defaults.internal.util.GradleUtil;
 import com.liferay.gradle.plugins.extensions.LiferayExtension;
 
 import java.io.File;
+import java.util.concurrent.CompletableFuture;
 
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
@@ -45,7 +46,6 @@ public class LiferayBaseDefaultsPlugin
 				public void execute(Project project) {
 					_configureLiferayDeployDir(project);
 				}
-
 			});
 	}
 

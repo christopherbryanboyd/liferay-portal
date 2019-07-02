@@ -24,6 +24,9 @@ import com.liferay.gradle.plugins.defaults.internal.MavenDefaultsPlugin;
 import com.liferay.gradle.plugins.defaults.internal.NodeDefaultsPlugin;
 import com.liferay.gradle.util.Validator;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
@@ -40,11 +43,37 @@ public class LiferayDefaultsPlugin extends LiferayPlugin {
 			LicenseReportDefaultsPlugin.INSTANCE.apply(project);
 		}
 
-		JavaDefaultsPlugin.INSTANCE.apply(project);
-		LiferayBaseDefaultsPlugin.INSTANCE.apply(project);
-		LiferayRelengPlugin.INSTANCE.apply(project);
-		MavenDefaultsPlugin.INSTANCE.apply(project);
-		NodeDefaultsPlugin.INSTANCE.apply(project);
+		CompletableFuture<?> future1 = CompletableFuture.runAsync(() -> {
+			synchronized(project) { 
+				JavaDefaultsPlugin.INSTANCE.apply(project);
+			}
+		});
+		CompletableFuture<?> future2 = CompletableFuture.runAsync(() -> {
+			synchronized(project) { 
+				LiferayBaseDefaultsPlugin.INSTANCE.apply(project);
+			}
+		});
+		CompletableFuture<?> future3 = CompletableFuture.runAsync(() -> {
+			synchronized(project) { 
+				LiferayRelengPlugin.INSTANCE.apply(project);
+			}
+		});
+		CompletableFuture<?> future4 = CompletableFuture.runAsync(() -> {
+			synchronized(project) { 
+				MavenDefaultsPlugin.INSTANCE.apply(project);
+			}
+		});
+		CompletableFuture<?> future5 = CompletableFuture.runAsync(() -> {
+			synchronized(project) { 
+				NodeDefaultsPlugin.INSTANCE.apply(project);
+			}
+		});
+		
+		try {
+			CompletableFuture.allOf(future1, future2, future3, future4, future5).get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new RuntimeException(e);
+		}
 
 		if (_isRunningInCIEnvironment()) {
 			LiferayCIPlugin.INSTANCE.apply(project);

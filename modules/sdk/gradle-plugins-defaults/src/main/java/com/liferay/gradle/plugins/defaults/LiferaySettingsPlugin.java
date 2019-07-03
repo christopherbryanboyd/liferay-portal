@@ -87,7 +87,7 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 				public void execute(Gradle gradle) {
 					String projectPathsProperty = System.getProperty(
 							"liferay.project.paths");
-					
+
 					if (projectPathsProperty != null && !"false".equals(projectPathsProperty.toLowerCase())) {
 						_afterEvaluate( settings);
 					}
@@ -95,7 +95,7 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 				}
 				
 			});
-
+			
 			_includeProjects(
 					settings, projectPathRootDirPath, projectPathPrefix);
 		}
@@ -248,7 +248,7 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 	private void _afterEvaluate(Settings settings) {
 		Gradle gradle = settings.getGradle();
 		
-		Collection<String> projectNamesToKeep = new HashSet<>();
+		Collection<String> projectPathsToKeep = new HashSet<>();
 
 		Collection<ProjectDescriptor> getSourceProjects =
 				_getSourceProjectDescriptors(settings);
@@ -262,17 +262,21 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 					).getProjectDir();
 
 			if (projectDir.exists()) {
-				_populateProjectNamesToKeep(settings, projectNamesToKeep, projects, projectDir);
+				_populateProjectNamesToKeep(settings, projectPathsToKeep, projects, projectDir);
 			}
 		}
+		
+		_retainSettingsProjects(settings.getRootProject().getChildren(), projectPathsToKeep);
 
 		_retainProjects(
 				gradle.getRootProject(
 						).getChildProjects(),
-				projectNamesToKeep);
+				projectPathsToKeep);
+		
+		System.out.println("foo");
 	}
 
-	private Collection<Project> _populateProjectNamesToKeep(Settings settings, Collection<String> projectNamesToKeep,
+	private Collection<Project> _populateProjectNamesToKeep(Settings settings, Collection<String> projectPathsToKeep,
 			Collection<Project> projects, File projectDir) {
 		String sourceProjectGradlePath = settings.findProject(
 				projectDir
@@ -287,10 +291,10 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 			Collection<Project> projectsWithParents =
 					_getProjectsWithParents(projects);
 
-			projectNamesToKeep.addAll(
+			projectPathsToKeep.addAll(
 					projectsWithParents.stream(
 							).map(
-									Project::getName
+									Project::getPath
 									).collect(
 											Collectors.toSet()
 											));
@@ -1022,9 +1026,31 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 
 	}
 
+	private void _retainSettingsProjects(
+			Set<ProjectDescriptor> projectDescriptors,
+			Collection<String> projectPathsToKeep) {
+		
+		Collection<String> projectsToRemove = new HashSet<>();
+
+		for (ProjectDescriptor childProject : projectDescriptors) {
+
+			Set<ProjectDescriptor> subProjectDescriptors = childProject.getChildren();
+
+			if (!subProjectDescriptors.isEmpty()) {
+				_retainSettingsProjects(subProjectDescriptors, projectPathsToKeep);
+			}
+
+			if (!projectPathsToKeep.contains(childProject.getPath())) {
+				projectsToRemove.add(childProject.getPath());
+			}
+		}
+		projectDescriptors.removeAll(projectDescriptors.stream().filter(p -> projectsToRemove.contains(p.getPath())).collect(Collectors.toSet()));
+	}
 	private void _retainProjects(
 			Map<String, Project> childProjects,
-			Collection<String> projectNamesToKeep) {
+			Collection<String> projectPathsToKeep) {
+		
+		Collection<String> pathsToRemove = new ArrayList<>();
 
 		Collection<String> projectsToRemove = new HashSet<>();
 
@@ -1037,16 +1063,21 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 					childProject.getChildProjects();
 
 			if ((subChildProjects != null) && !subChildProjects.isEmpty()) {
-				_retainProjects(subChildProjects, projectNamesToKeep);
+				_retainProjects(subChildProjects, projectPathsToKeep);
 			}
 
-			if (!projectNamesToKeep.contains(childProjectEntry.getKey())) {
-				projectsToRemove.add(childProjectEntry.getKey());
+			if (!projectPathsToKeep.contains(childProject.getPath())) {
+				projectsToRemove.add(childProject.getPath());
 			}
 		}
 
-		for (String projectNameToRemove : projectsToRemove) {
-			childProjects.remove(projectNameToRemove);
+		Collection<String> childProjectsToRemove = childProjects.values()
+				.stream()
+				.filter(p -> projectsToRemove.contains(p.getPath()))
+				.map(Project::getName)
+				.collect(Collectors.toSet());
+		for (String entry : childProjectsToRemove) {
+			childProjects.remove(entry);
 		}
 	}
 

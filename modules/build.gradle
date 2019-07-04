@@ -15,9 +15,14 @@ import org.gradle.plugins.ide.eclipse.model.Classpath
 import org.gradle.plugins.ide.eclipse.model.ClasspathEntry
 import org.gradle.plugins.ide.eclipse.model.EclipseClasspath
 import org.gradle.plugins.ide.eclipse.model.EclipseModel
+import org.gradle.api.Project
 
 buildscript {
 	apply from: rootProject.file("build-buildscript.gradle"), to: buildscript
+}
+
+task printProjectPaths {
+    // Noop
 }
 
 ext {
@@ -103,8 +108,6 @@ gradle.beforeProject {
 	configure(project) {
 		apply plugin: "com.liferay.defaults.plugin"
 
-		task printProjectPath
-
 		afterEvaluate {
 			String forcedUpdateFilesVersion = GradleUtil.getProperty(project, "forced.update.files.version", (String)null)
 
@@ -133,12 +136,6 @@ gradle.beforeProject {
 						_updateGradleSourcePaths(gradleVersion, project.extensions.getByType(EclipseModel.class))
 					}
 				}
-			}
-		}
-
-		printProjectPath {
-			doLast {
-				println project.path
 			}
 		}
 

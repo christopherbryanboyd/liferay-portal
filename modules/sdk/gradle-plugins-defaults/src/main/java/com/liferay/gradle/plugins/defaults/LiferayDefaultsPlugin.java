@@ -20,6 +20,7 @@ import com.liferay.gradle.plugins.defaults.internal.LicenseReportDefaultsPlugin;
 import com.liferay.gradle.plugins.defaults.internal.LiferayBaseDefaultsPlugin;
 import com.liferay.gradle.plugins.defaults.internal.LiferayCIPlugin;
 import com.liferay.gradle.plugins.defaults.internal.LiferayRelengPlugin;
+import com.liferay.gradle.plugins.defaults.internal.LiferaySourceProject;
 import com.liferay.gradle.plugins.defaults.internal.MavenDefaultsPlugin;
 import com.liferay.gradle.plugins.defaults.internal.NodeDefaultsPlugin;
 import com.liferay.gradle.util.Validator;
@@ -27,57 +28,33 @@ import com.liferay.gradle.util.Validator;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.initialization.Settings;
+import org.gradle.api.invocation.Gradle;
 
 /**
  * @author Andrea Di Giorgi
  */
 public class LiferayDefaultsPlugin extends LiferayPlugin {
-
 	@Override
 	public void apply(Project project) {
 		super.apply(project);
 
-		if (Boolean.getBoolean("license.report.enabled")) {
-			LicenseReportDefaultsPlugin.INSTANCE.apply(project);
-		}
-
-		CompletableFuture<?> future1 = CompletableFuture.runAsync(() -> {
-			synchronized(project) { 
-				JavaDefaultsPlugin.INSTANCE.apply(project);
+		//System.out.println("Applying " + project.getPath());
+			if (Boolean.getBoolean("license.report.enabled")) {
+				LicenseReportDefaultsPlugin.INSTANCE.apply(project);
 			}
-		});
-		CompletableFuture<?> future2 = CompletableFuture.runAsync(() -> {
-			synchronized(project) { 
-				LiferayBaseDefaultsPlugin.INSTANCE.apply(project);
+			JavaDefaultsPlugin.INSTANCE.apply(project);
+			LiferayBaseDefaultsPlugin.INSTANCE.apply(project);
+			LiferayRelengPlugin.INSTANCE.apply(project);
+			MavenDefaultsPlugin.INSTANCE.apply(project);
+			NodeDefaultsPlugin.INSTANCE.apply(project);
+	
+			if (_isRunningInCIEnvironment()) {
+				LiferayCIPlugin.INSTANCE.apply(project);
 			}
-		});
-		CompletableFuture<?> future3 = CompletableFuture.runAsync(() -> {
-			synchronized(project) { 
-				LiferayRelengPlugin.INSTANCE.apply(project);
-			}
-		});
-		CompletableFuture<?> future4 = CompletableFuture.runAsync(() -> {
-			synchronized(project) { 
-				MavenDefaultsPlugin.INSTANCE.apply(project);
-			}
-		});
-		CompletableFuture<?> future5 = CompletableFuture.runAsync(() -> {
-			synchronized(project) { 
-				NodeDefaultsPlugin.INSTANCE.apply(project);
-			}
-		});
-		
-		try {
-			CompletableFuture.allOf(future1, future2, future3, future4, future5).get();
-		} catch (InterruptedException | ExecutionException e) {
-			throw new RuntimeException(e);
-		}
-
-		if (_isRunningInCIEnvironment()) {
-			LiferayCIPlugin.INSTANCE.apply(project);
-		}
 	}
 
 	@Override

@@ -171,7 +171,7 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 			try {
 			Collection<String> args = new ArrayList<>(
 					Arrays.asList(
-						new File(settings.getRootDir().getParentFile(),"gradlew").getAbsolutePath(), 
+						"sh", "gradlew", 
 						"-Dcalculate.liferay.project.paths=" + LiferaySourceProject.getLiferayProjectPathsProperty(), 
 						"-Dorg.gradle.configureondemand=true", 
 						"-Dorg.gradle.parallel=true", 

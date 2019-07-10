@@ -104,7 +104,13 @@ public class ProjectDependencyGenerator {
 				}
 			}
 			//
-			Collection<String> args = new ArrayList<>(Arrays.asList(new File(settings.getRootDir().getParentFile(),"gradlew").getAbsolutePath(), "-Dorg.gradle.parallel=true", "-Dorg.gradle.configureondemand=true", "-q"));
+			Collection<String> args = new ArrayList<>(
+					Arrays.asList(
+					"sh", "gradlew",
+					"-p", "modules",
+					"-Dorg.gradle.parallel=true", 
+					"-Dorg.gradle.configureondemand=true", 
+					"-q"));
 			for (String projectPath : projectPaths) {
 				args.add(projectPath + ":outputRequiredProjectsTask");
 			}
@@ -116,7 +122,7 @@ public class ProjectDependencyGenerator {
 			//args.add("-Dorg.gradle.debug=true");
 			Process p = new ProcessBuilder(args.toArray(new String[0])
 					)
-					.directory(settings.getRootDir())
+					.directory(settings.getRootDir().getParentFile())
 					.start();
 			p.waitFor();
 			String stderr= IOUtils.toString(p.getErrorStream());

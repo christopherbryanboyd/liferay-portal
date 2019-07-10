@@ -175,6 +175,7 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 						"-Dcalculate.liferay.project.paths=" + LiferaySourceProject.getLiferayProjectPathsProperty(), 
 						"-Dorg.gradle.configureondemand=true", 
 						"-Dorg.gradle.parallel=true", 
+						"-p", "modules",
 						":outputRequiredProjectsTask"));
 			
 				if (System.getProperty("liferay.gradle.debug") != null) {
@@ -182,7 +183,7 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 				}
 				
 					Process p = new ProcessBuilder(args.toArray(new String[0]))
-							.directory(settings.getRootDir())
+							.directory(settings.getRootDir().getParentFile())
 							.start();
 					p.waitFor();
 					String stderr= IOUtils.toString(p.getErrorStream());

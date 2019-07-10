@@ -74,6 +74,33 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 			if (_isPortalRootDirPath(rootDirPath)) {
 				projectPathRootDirPath = rootDirPath.resolve("modules");
 			}
+			
+			if (System.getProperty("eclipse.commands") != null &&
+				(
+					(LiferaySourceProject
+						.getLiferayProjectPathsProperty() != null &&
+						(LiferaySourceProject
+							.getLiferayProjectPathsProperty().isEmpty() ||
+						LiferaySourceProject
+							.getLiferayProjectPathsProperty().toLowerCase().equals("true")))
+					||
+					LiferaySourceProject
+					.getLiferayProjectPathsProperty() == null)
+				) {
+
+				if (settings.getStartParameter().getProjectDir().toPath().startsWith(rootDirPath) && 
+					!Files.isSameFile(settings.getStartParameter().getProjectDir().toPath(), rootDirPath)) {
+					
+					if (Files.isDirectory(settings.getStartParameter().getProjectDir().toPath()) &&
+							Files.exists(settings.getStartParameter().getProjectDir().toPath().resolve("build.gradle"))) {
+						
+						System.setProperty(
+								"liferay.project.paths", LiferayDependencyGenerator.convertPathToGradlePath(settings.getStartParameter().getProjectDir().toPath(), rootDirPath, ""));
+					}
+					
+				}
+				
+			}
 
 			if (LiferaySourceProject.getCalculateLiferayProjectPathsProperty() != null) {
 			
@@ -151,7 +178,6 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 					includedGradlePaths.addAll(Arrays.asList(paths));
 				}
 			}
-			
 
 			_includeProjects(
 				settings, projectPathRootDirPath, projectPathPrefix, includedGradlePaths);

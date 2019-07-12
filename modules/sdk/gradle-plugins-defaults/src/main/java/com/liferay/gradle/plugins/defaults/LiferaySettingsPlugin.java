@@ -214,8 +214,6 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 					p.waitFor();
 					String stderr= IOUtils.toString(p.getErrorStream());
 					String stdout = IOUtils.toString(p.getInputStream());
-					System.out.println("From gradlew -Dcalculate.liferay.project.paths=" + LiferaySourceProject.getLiferayProjectPathsProperty());
-					System.out.println(stdout);
 					try (Scanner s = new Scanner(stdout)) {
 						while (s.hasNextLine()) {
 							String nextLine = s.nextLine();
@@ -262,7 +260,6 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 			public void execute(Project project) {
 				// TODO Auto-generated method stub
 
-				System.out.println("Adding task outputRequiredProjectsTask to project " + project.getPath());
 				GradleUtil.addTask(project, "outputRequiredProjectsTask", OutputRequiredProjectsTask.class, true);
 			}
 		});

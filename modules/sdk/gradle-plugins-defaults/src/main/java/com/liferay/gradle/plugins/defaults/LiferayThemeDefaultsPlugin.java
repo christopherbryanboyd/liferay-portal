@@ -89,7 +89,7 @@ public class LiferayThemeDefaultsPlugin implements Plugin<Project> {
 
 	@Override
 	public void apply(final Project project) {
-		GradleUtil.applyPlugin(project, LiferayThemePlugin.class);
+		LiferaySettingsPlugin.applyPluginSafely(project, LiferayThemePlugin.class);
 
 		_applyPlugins(project);
 
@@ -531,7 +531,7 @@ public class LiferayThemeDefaultsPlugin implements Plugin<Project> {
 	}
 
 	private void _applyPlugins(Project project) {
-		GradleUtil.applyPlugin(project, MavenPlugin.class);
+		LiferaySettingsPlugin.applyPluginSafely(project, MavenPlugin.class);
 	}
 
 	private void _configureDeployDir(Project project) {

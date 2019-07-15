@@ -52,21 +52,22 @@ public class LiferaySpringBootDefaultsPlugin implements Plugin<Project> {
 
 	@Override
 	public void apply(Project project) {
-		_applyPlugins(project);
-
-		File portalRootDir = GradleUtil.getRootDir(
-			project.getRootProject(), "portal-impl");
-
-		GradlePluginsDefaultsUtil.configureRepositories(project, portalRootDir);
-
-		_configureProject(project);
-
-		_addTaskRun(project);
-
-		_configureTaskBootRun(project);
-		_configureTaskCheck(project);
-		_configureTaskTest(project);
-		_configureTaskTestIntegration(project);
+		if (_applyPlugins(project)) {
+	
+			File portalRootDir = GradleUtil.getRootDir(
+				project.getRootProject(), "portal-impl");
+	
+			GradlePluginsDefaultsUtil.configureRepositories(project, portalRootDir);
+	
+			_configureProject(project);
+	
+			_addTaskRun(project);
+	
+			_configureTaskBootRun(project);
+			_configureTaskCheck(project);
+			_configureTaskTest(project);
+			_configureTaskTestIntegration(project);
+		}
 	}
 
 	private Task _addTaskRun(Project project) {
@@ -84,14 +85,14 @@ public class LiferaySpringBootDefaultsPlugin implements Plugin<Project> {
 		return task;
 	}
 
-	private void _applyPlugins(Project project) {
-		GradleUtil.applyPlugin(project, EclipsePlugin.class);
-		GradleUtil.applyPlugin(project, IdeaPlugin.class);
-		GradleUtil.applyPlugin(project, JavaPlugin.class);
-		GradleUtil.applyPlugin(project, SourceFormatterDefaultsPlugin.class);
-		GradleUtil.applyPlugin(project, SourceFormatterPlugin.class);
-		GradleUtil.applyPlugin(project, SpringBootPlugin.class);
-		GradleUtil.applyPlugin(project, TestIntegrationBasePlugin.class);
+	private boolean _applyPlugins(Project project) {
+		return LiferaySettingsPlugin.applyPluginSafely(project, EclipsePlugin.class) &
+		LiferaySettingsPlugin.applyPluginSafely(project, IdeaPlugin.class) &
+		LiferaySettingsPlugin.applyPluginSafely(project, JavaPlugin.class) &
+		LiferaySettingsPlugin.applyPluginSafely(project, SourceFormatterDefaultsPlugin.class) &
+		LiferaySettingsPlugin.applyPluginSafely(project, SourceFormatterPlugin.class) &
+		LiferaySettingsPlugin.applyPluginSafely(project, SpringBootPlugin.class) &
+		LiferaySettingsPlugin.applyPluginSafely(project, TestIntegrationBasePlugin.class);
 	}
 
 	private void _configureProject(Project project) {

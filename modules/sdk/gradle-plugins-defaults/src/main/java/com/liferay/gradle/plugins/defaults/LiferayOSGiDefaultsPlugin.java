@@ -314,7 +314,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 		final File portalRootDir = GradleUtil.getRootDir(
 			project.getRootProject(), "portal-impl");
 
-		GradleUtil.applyPlugin(project, LiferayOSGiPlugin.class);
+		if (LiferaySettingsPlugin.applyPluginSafely(project, LiferayOSGiPlugin.class)) {
 
 		final LiferayExtension liferayExtension = GradleUtil.getExtension(
 			project, LiferayExtension.class);
@@ -613,6 +613,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 				}
 
 			});
+		}
 	}
 
 	private Configuration _addConfigurationPortalTest(Project project) {
@@ -1728,39 +1729,38 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 		if (Validator.isNotNull(
 				BndBuilderUtil.getInstruction(project, "Main-Class"))) {
 
-			GradleUtil.applyPlugin(project, ApplicationPlugin.class);
+			LiferaySettingsPlugin.applyPluginSafely(project, ApplicationPlugin.class);
 		}
 
-		GradleUtil.applyPlugin(project, BaselinePlugin.class);
-		GradleUtil.applyPlugin(project, DependencyCheckerPlugin.class);
-		GradleUtil.applyPlugin(project, FindBugsPlugin.class);
-		GradleUtil.applyPlugin(project, IdeaPlugin.class);
-		GradleUtil.applyPlugin(project, JSDocPlugin.class);
-		GradleUtil.applyPlugin(project, MavenPlugin.class);
-		GradleUtil.applyPlugin(project, PmdPlugin.class);
-		GradleUtil.applyPlugin(project, ProvidedBasePlugin.class);
+		LiferaySettingsPlugin.applyPluginSafely(project, BaselinePlugin.class);
+		LiferaySettingsPlugin.applyPluginSafely(project, FindBugsPlugin.class);
+		LiferaySettingsPlugin.applyPluginSafely(project, IdeaPlugin.class);
+		LiferaySettingsPlugin.applyPluginSafely(project, JSDocPlugin.class);
+		LiferaySettingsPlugin.applyPluginSafely(project, MavenPlugin.class);
+		LiferaySettingsPlugin.applyPluginSafely(project, PmdPlugin.class);
+		LiferaySettingsPlugin.applyPluginSafely(project, ProvidedBasePlugin.class);
 
 		if (FileUtil.exists(project, "rest-config.yaml")) {
-			GradleUtil.applyPlugin(project, RESTBuilderPlugin.class);
+			LiferaySettingsPlugin.applyPluginSafely(project, RESTBuilderPlugin.class);
 		}
 
 		if (FileUtil.exists(project, "service.xml")) {
-			GradleUtil.applyPlugin(project, ServiceBuilderPlugin.class);
-			GradleUtil.applyPlugin(project, UpgradeTableBuilderPlugin.class);
-			GradleUtil.applyPlugin(project, WSDDBuilderPlugin.class);
+			LiferaySettingsPlugin.applyPluginSafely(project, ServiceBuilderPlugin.class);
+			LiferaySettingsPlugin.applyPluginSafely(project, UpgradeTableBuilderPlugin.class);
+			LiferaySettingsPlugin.applyPluginSafely(project, WSDDBuilderPlugin.class);
 		}
 
 		if (FileUtil.exists(project, "wsdl")) {
-			GradleUtil.applyPlugin(project, WSDLBuilderPlugin.class);
+			LiferaySettingsPlugin.applyPluginSafely(project, WSDLBuilderPlugin.class);
 		}
 
 		if (FileUtil.exists(project, "xsd")) {
-			GradleUtil.applyPlugin(project, XSDBuilderPlugin.class);
+			LiferaySettingsPlugin.applyPluginSafely(project, XSDBuilderPlugin.class);
 		}
 
-		FindSecurityBugsPlugin.INSTANCE.apply(project);
-		JSDocDefaultsPlugin.INSTANCE.apply(project);
-		PublishPluginDefaultsPlugin.INSTANCE.apply(project);
+		LiferaySettingsPlugin.applyPluginSafely(project, FindSecurityBugsPlugin.INSTANCE);
+		LiferaySettingsPlugin.applyPluginSafely(project, JSDocDefaultsPlugin.INSTANCE);
+		LiferaySettingsPlugin.applyPluginSafely(project, PublishPluginDefaultsPlugin.INSTANCE);
 	}
 
 	private void _applyVersionOverrideJson(Project project, String fileName)

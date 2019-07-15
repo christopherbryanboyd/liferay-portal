@@ -14,6 +14,7 @@
 
 package com.liferay.gradle.plugins.defaults;
 
+import com.liferay.gradle.plugins.LiferayAntPlugin;
 import com.liferay.gradle.plugins.SourceFormatterDefaultsPlugin;
 import com.liferay.gradle.plugins.defaults.internal.util.GradlePluginsDefaultsUtil;
 import com.liferay.gradle.plugins.defaults.internal.util.GradleUtil;
@@ -35,24 +36,25 @@ public class LiferayGoDefaultsPlugin implements Plugin<Project> {
 
 	@Override
 	public void apply(Project project) {
-		_applyPlugins(project);
+		if (_applyPlugins(project)) {
 
-		File portalRootDir = GradleUtil.getRootDir(
-			project.getRootProject(), "portal-impl");
-
-		GradlePluginsDefaultsUtil.configureRepositories(project, portalRootDir);
-
-		_configureProject(project);
-
-		_configureGo(project);
+			File portalRootDir = GradleUtil.getRootDir(
+				project.getRootProject(), "portal-impl");
+	
+			GradlePluginsDefaultsUtil.configureRepositories(project, portalRootDir);
+	
+			_configureProject(project);
+	
+			_configureGo(project);
+		}
 	}
 
-	private void _applyPlugins(Project project) {
-		GradleUtil.applyPlugin(project, EclipsePlugin.class);
-		GradleUtil.applyPlugin(project, GoPlugin.class);
-		GradleUtil.applyPlugin(project, IdeaPlugin.class);
-		GradleUtil.applyPlugin(project, SourceFormatterDefaultsPlugin.class);
-		GradleUtil.applyPlugin(project, SourceFormatterPlugin.class);
+	private boolean _applyPlugins(Project project) {
+		return LiferaySettingsPlugin.applyPluginSafely(project, EclipsePlugin.class) &
+		LiferaySettingsPlugin.applyPluginSafely(project, GoPlugin.class) &
+		LiferaySettingsPlugin.applyPluginSafely(project, IdeaPlugin.class) &
+		LiferaySettingsPlugin.applyPluginSafely(project, SourceFormatterDefaultsPlugin.class) &
+		LiferaySettingsPlugin.applyPluginSafely(project, SourceFormatterPlugin.class);
 	}
 
 	private void _configureGo(Project project) {

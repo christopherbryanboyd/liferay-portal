@@ -52,8 +52,8 @@ public class PoshiRunnerResourcesDefaultsPlugin implements Plugin<Project> {
 
 	@Override
 	public void apply(Project project) {
-		GradleUtil.applyPlugin(project, MavenPlugin.class);
-		GradleUtil.applyPlugin(project, PoshiRunnerResourcesPlugin.class);
+		LiferaySettingsPlugin.applyPluginSafely(project, MavenPlugin.class);
+		LiferaySettingsPlugin.applyPluginSafely(project, PoshiRunnerResourcesPlugin.class);
 
 		_applyConfigScripts(project);
 		_configurePoshiRunnerResources(project);

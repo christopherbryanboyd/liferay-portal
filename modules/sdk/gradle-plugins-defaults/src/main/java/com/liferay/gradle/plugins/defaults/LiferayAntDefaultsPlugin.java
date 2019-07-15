@@ -62,9 +62,9 @@ public class LiferayAntDefaultsPlugin implements Plugin<Project> {
 			copyIvyDependenciesTask.writeChecksumFile();
 		}
 
-		GradleUtil.applyPlugin(project, LiferayAntPlugin.class);
+		
 
-		_applyPlugins(project);
+		if (_applyPlugins(project)) {
 
 		// GRADLE-2427
 
@@ -98,6 +98,7 @@ public class LiferayAntDefaultsPlugin implements Plugin<Project> {
 				}
 
 			});
+		}
 	}
 
 	private CopyIvyDependenciesTask _addTaskCopyIvyDependencies(
@@ -192,8 +193,10 @@ public class LiferayAntDefaultsPlugin implements Plugin<Project> {
 			project);
 	}
 
-	private void _applyPlugins(Project project) {
-		GradleUtil.applyPlugin(project, MavenPlugin.class);
+	private boolean _applyPlugins(Project project) {
+		return LiferaySettingsPlugin.applyPluginSafely(project, LiferayAntPlugin.class)
+		
+				& LiferaySettingsPlugin.applyPluginSafely(project, MavenPlugin.class);
 	}
 
 	private void _configureProject(Project project) {

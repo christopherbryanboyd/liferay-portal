@@ -35,22 +35,23 @@ public class LiferayRootDefaultsPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		if (FileUtil.exists(project, "app.bnd")) {
-			GradleUtil.applyPlugin(project, LiferayAppDefaultsPlugin.class);
+			LiferaySettingsPlugin.applyPluginSafely(project, LiferayAppDefaultsPlugin.class);
 		}
 
-		GradleUtil.applyPlugin(project, SourceFormatterPlugin.class);
-		SourceFormatterDefaultsPlugin.INSTANCE.apply(project);
-
-		File portalRootDir = GradleUtil.getRootDir(
-			project.getRootProject(), "portal-impl");
-
-		GradlePluginsDefaultsUtil.configureRepositories(project, portalRootDir);
-
-		for (Project subproject : project.getSubprojects()) {
-			Map<String, Project> childProjects = subproject.getChildProjects();
-
-			if (childProjects.isEmpty()) {
-				GradleUtil.applyPlugin(subproject, LiferayDefaultsPlugin.class);
+		if (LiferaySettingsPlugin.applyPluginSafely(project, SourceFormatterPlugin.class)) {
+			LiferaySettingsPlugin.applyPluginSafely(project, SourceFormatterDefaultsPlugin.INSTANCE);
+	
+			File portalRootDir = GradleUtil.getRootDir(
+				project.getRootProject(), "portal-impl");
+	
+			GradlePluginsDefaultsUtil.configureRepositories(project, portalRootDir);
+	
+			for (Project subproject : project.getSubprojects()) {
+				Map<String, Project> childProjects = subproject.getChildProjects();
+	
+				if (childProjects.isEmpty()) {
+					LiferaySettingsPlugin.applyPluginSafely(subproject, LiferayDefaultsPlugin.class);
+				}
 			}
 		}
 	}

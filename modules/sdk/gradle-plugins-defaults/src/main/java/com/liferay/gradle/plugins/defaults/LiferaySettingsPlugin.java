@@ -20,7 +20,8 @@ import com.liferay.gradle.util.Validator;
 
 import java.io.File;
 import java.io.IOException;
-
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,6 +35,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.gradle.api.Plugin;
+import org.gradle.api.Project;
 import org.gradle.api.UncheckedIOException;
 import org.gradle.api.initialization.ProjectDescriptor;
 import org.gradle.api.initialization.Settings;
@@ -246,6 +248,35 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 				}
 
 			});
+	}
+
+	public static <T extends Plugin<? extends Project>> boolean applyPluginSafely(Project project, Plugin<Project> plugin)
+	{
+		try {
+			plugin.apply(project);
+			return true;
+		}
+		catch (Throwable th) {
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			th.printStackTrace(pw);
+			project.getLogger().warn(th.getClass().getName() + "::" + th.getMessage() + System.lineSeparator() + sw.toString());
+			return false;
+		}
+	}
+	public static <T extends Plugin<? extends Project>> boolean applyPluginSafely(Project project, Class<T> clazz)
+	{
+		try {
+			GradleUtil.applyPlugin(project, clazz);
+			return true;
+		}
+		catch (Throwable th) {
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			th.printStackTrace(pw);
+			project.getLogger().warn(th.getClass().getName() + "::" + th.getMessage() + System.lineSeparator() + sw.toString());
+			return false;
+		}
 	}
 
 	private boolean _isPortalRootDirPath(Path dirPath) {

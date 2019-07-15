@@ -120,43 +120,44 @@ public class LiferayAppDefaultsPlugin implements Plugin<Project> {
 			}
 		}
 
-		_applyPlugins(project);
+		if (_applyPlugins(project)) {
 
-		File portalRootDir = GradleUtil.getRootDir(
-			project.getRootProject(), "portal-impl");
-
-		GradlePluginsDefaultsUtil.configureRepositories(project, portalRootDir);
-
-		Task writeAppPackageJsonFileTask = _addTaskWriteAppPackageJsonFile(
-			project, appTitle, appDescription, appVersion);
-
-		_configureAppJSDoc(project, privateProject);
-		_configureAppJavadocBuilder(project, privateProject);
-		_configureAppTLDDocBuilder(project, privateProject);
-		_configureProject(project, appDescription, appVersion);
-		_configureTaskAppJSDoc(writeAppPackageJsonFileTask);
-		_configureTaskAppJavadoc(project, portalRootDir, appTitle, appVersion);
-		_configureTaskAppTlddoc(project, portalRootDir);
-
-		if (privateProject != null) {
-			Gradle gradle = project.getGradle();
-
-			StartParameter startParameter = gradle.getStartParameter();
-
-			List<String> taskNames = startParameter.getTaskNames();
-
-			if (taskNames.contains(AppJSDocPlugin.APP_JSDOC_TASK_NAME) ||
-				taskNames.contains(AppJSDocPlugin.JAR_APP_JSDOC_TASK_NAME) ||
-				taskNames.contains(
-					AppJavadocBuilderPlugin.APP_JAVADOC_TASK_NAME) ||
-				taskNames.contains(
-					AppJavadocBuilderPlugin.JAR_APP_JAVADOC_TASK_NAME) ||
-				taskNames.contains(
-					AppTLDDocBuilderPlugin.APP_TLDDOC_TASK_NAME) ||
-				taskNames.contains(
-					AppTLDDocBuilderPlugin.JAR_APP_TLDDOC_TASK_NAME)) {
-
-				_forceProjectHierarchyEvaluation(privateProject);
+			File portalRootDir = GradleUtil.getRootDir(
+				project.getRootProject(), "portal-impl");
+	
+			GradlePluginsDefaultsUtil.configureRepositories(project, portalRootDir);
+	
+			Task writeAppPackageJsonFileTask = _addTaskWriteAppPackageJsonFile(
+				project, appTitle, appDescription, appVersion);
+	
+			_configureAppJSDoc(project, privateProject);
+			_configureAppJavadocBuilder(project, privateProject);
+			_configureAppTLDDocBuilder(project, privateProject);
+			_configureProject(project, appDescription, appVersion);
+			_configureTaskAppJSDoc(writeAppPackageJsonFileTask);
+			_configureTaskAppJavadoc(project, portalRootDir, appTitle, appVersion);
+			_configureTaskAppTlddoc(project, portalRootDir);
+	
+			if (privateProject != null) {
+				Gradle gradle = project.getGradle();
+	
+				StartParameter startParameter = gradle.getStartParameter();
+	
+				List<String> taskNames = startParameter.getTaskNames();
+	
+				if (taskNames.contains(AppJSDocPlugin.APP_JSDOC_TASK_NAME) ||
+					taskNames.contains(AppJSDocPlugin.JAR_APP_JSDOC_TASK_NAME) ||
+					taskNames.contains(
+						AppJavadocBuilderPlugin.APP_JAVADOC_TASK_NAME) ||
+					taskNames.contains(
+						AppJavadocBuilderPlugin.JAR_APP_JAVADOC_TASK_NAME) ||
+					taskNames.contains(
+						AppTLDDocBuilderPlugin.APP_TLDDOC_TASK_NAME) ||
+					taskNames.contains(
+						AppTLDDocBuilderPlugin.JAR_APP_TLDDOC_TASK_NAME)) {
+	
+					_forceProjectHierarchyEvaluation(privateProject);
+				}
 			}
 		}
 	}
@@ -220,11 +221,12 @@ public class LiferayAppDefaultsPlugin implements Plugin<Project> {
 		return task;
 	}
 
-	private void _applyPlugins(Project project) {
-		GradleUtil.applyPlugin(project, AppJSDocPlugin.class);
-		GradleUtil.applyPlugin(project, AppJavadocBuilderPlugin.class);
-		GradleUtil.applyPlugin(project, AppTLDDocBuilderPlugin.class);
-		GradleUtil.applyPlugin(project, NodeDefaultsPlugin.class);
+	private boolean _applyPlugins(Project project) {
+		return 
+			LiferaySettingsPlugin.applyPluginSafely(project, AppJSDocPlugin.class) & 
+			LiferaySettingsPlugin.applyPluginSafely(project, AppJavadocBuilderPlugin.class) &
+			LiferaySettingsPlugin.applyPluginSafely(project, AppTLDDocBuilderPlugin.class) &
+			LiferaySettingsPlugin.applyPluginSafely(project, NodeDefaultsPlugin.class);
 	}
 
 	@SuppressWarnings("serial")

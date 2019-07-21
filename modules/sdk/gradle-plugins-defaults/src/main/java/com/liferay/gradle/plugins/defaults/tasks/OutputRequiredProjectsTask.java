@@ -23,7 +23,7 @@ public class OutputRequiredProjectsTask extends DefaultTask {
 	@TaskAction
 	public void OutputRequiredProjects() throws Exception {
 
-		String projectPathsProperty = LiferaySourceProject.getLiferayProjectPathFilterProperty();
+		String projectPathsProperty = LiferaySourceProject.getCalculateLiferayProjectPathsProperty();
 
 		if (projectPathsProperty != null) {
 			
@@ -42,14 +42,20 @@ public class OutputRequiredProjectsTask extends DefaultTask {
 	public static Collection<String> getProjectPaths(Project project, Settings settings) {
 
 		Collection<String> projectPathsToKeep = new HashSet<>();
-		Collection<String> additionalProjectPaths = LiferaySourceProject._getSourceProjectDescriptors(settings, LiferaySourceProject.getLiferayProjectPathFilterProperty());
-		if (additionalProjectPaths.contains(project.getPath())) {
+		//Collection<String> additionalProjectPaths = LiferaySourceProject._getSourceProjectDescriptors(settings, LiferaySourceProject.getCalculateLiferayProjectPathsProperty());
+		//if (additionalProjectPaths.contains(project.getPath())) {
 		
 			Project projectToSearch = project;
-			Collection<Project> projectsWithDependencies = LiferaySourceProject.getDependencyProjects(projectToSearch);
+			Collection<Project> projectsWithDependencies = LiferaySourceProject.getDependencyProjects(settings, projectToSearch, new HashSet<>());
 			
 			Collection<Project> projectsWithParents = LiferaySourceProject._getProjectsWithParents(projectsWithDependencies);
 			
+			Collection<Project> projectsWithChildren = new HashSet<>();
+			for (Project projectWithDependencies : projectsWithDependencies) {
+				projectsWithChildren.add(projectWithDependencies);
+				projectsWithChildren.addAll(LiferaySourceProject.projectsToAccumulate(settings, projectWithDependencies));
+			}
+			projectPathsToKeep.addAll(projectsWithChildren.stream().map(p -> p.getPath()).collect(Collectors.toSet()));
 			//Collection<ProjectDescriptor> projectDescriptors = projectsWithParents.stream().map(p -> settings.findProject(p.getPath())).collect(Collectors.toSet());
 			
 			//Iterator<ProjectDescriptor> it = projectDescriptors.iterator();
@@ -70,7 +76,7 @@ public class OutputRequiredProjectsTask extends DefaultTask {
 				//_populateProjectNamesToKeep(settings, projectPathsToKeep, p);
 			}
 			
-		}
+		//}
 		return projectPathsToKeep;
 	}
 	
@@ -80,7 +86,7 @@ public class OutputRequiredProjectsTask extends DefaultTask {
 
 		if (sourceProject != null) {
 
-			Collection<Project> projects = LiferaySourceProject.getDependencyProjects(sourceProject);
+			Collection<Project> projects = LiferaySourceProject.getDependencyProjects(settings, sourceProject, new HashSet<>());
 
 			projectPathsToKeep.addAll(projects.stream().map(x -> x.getPath()).collect(Collectors.toSet()));
 			/*Collection<Project> projectsWithParents =

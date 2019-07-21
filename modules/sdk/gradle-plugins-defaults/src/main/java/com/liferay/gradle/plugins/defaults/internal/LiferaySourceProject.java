@@ -36,44 +36,83 @@ import com.liferay.gradle.util.Validator;
 
 public class LiferaySourceProject implements Plugin<Project> {
 
-	public static Collection<Project> getDependencyProjects(Project project) {
+	public static Collection<Project> getDependencyProjects(Settings settings, Project project, Collection<Project> alreadyChecked) {
 		Set<Project> projects = new LinkedHashSet<>();
+		if (!alreadyChecked.contains(project)) {
 
 		projects.add(project);
 
 		Set<ConfigurationContainer> configurationContainers = new HashSet<>();
-
-		if (System.getProperty("liferay.build.include.children") != null) {
-			System.clearProperty("liferay.build.include.children");
-			Map<String, Project> childProjects = project.getChildProjects();
-	
-			for (Project childProject : childProjects.values()) {
-				projects.add(childProject);
-	
-				configurationContainers.add(childProject.getConfigurations());
-			}
-		}
-
+		
+			
 		ConfigurationContainer configurationContainer =
 			project.getConfigurations();
 
 		configurationContainers.add(configurationContainer);
+		
+		
+		Collection<Configuration> configuration = configurationContainers.stream(
+				).flatMap(
+						Set::stream
+						).collect(Collectors.toSet());
 
-		configurationContainers.stream(
-		).flatMap(
-			Set::stream
-		).forEach(
-			c -> _collectDependencyProjects(projects, c)
-		);
+		for (Configuration c : configuration) {
+			_collectDependencyProjects(c, settings, projects, alreadyChecked);
+		}
+		for (Project p : projects) {
+			if (!alreadyChecked.contains(p)) {
+				
+				Map<String, Project> childProjects = p.getChildProjects();
+				
+				
+				for (Project childProject : childProjects.values()) {
+				Set<ConfigurationContainer> configurationContainers2 = new HashSet<>();
+				
+				ConfigurationContainer configurationContainer2 =
+						childProject.getConfigurations();
 
+					configurationContainers2.add(configurationContainer2);
+					
+					
+					Collection<Configuration> subConfiguration = configurationContainers2.stream(
+							).flatMap(
+									Set::stream
+									).collect(Collectors.toSet());
+
+					for (Configuration c : subConfiguration) {
+						_collectDependencyProjects(c, settings, projects, alreadyChecked);
+					}
+				}
+			}
+		}
+		}
+		return projects;
+	}
+
+	public static Collection<Project> projectsToAccumulate(Settings settings, Project project) {
+		
+		Collection<Project> projects = new HashSet<>();
+				
+		Map<String, Project> childProjects = project.getChildProjects();
+		
+		for (Project childProject : childProjects.values()) {
+			if (!projects.contains(childProject)) {
+				projects.addAll(projectsToAccumulate(settings, childProject));
+				projects.add(childProject);
+				
+				//projectsToAccumulate(settings, childProject, projects, configurationContainers, alreadyChecked);
+			
+				//configurationContainers.add(childProject.getConfigurations());
+			}
+		}
 		return projects;
 	}
 
 	protected static final String SOURCE_PROJECT_PATH_KEY =
 		"source.project.path";
 
-	public static void _collectDependencyProjects(
-		Collection<Project> dependencyProjects, Configuration configuration) {
+	public static void _collectDependencyProjects(Configuration configuration, Settings settings,
+		Collection<Project> dependencyProjects, Collection<Project> alreadyChecked) {
 
 		DependencySet dependencySet = configuration.getDependencies();
 
@@ -90,12 +129,22 @@ public class LiferaySourceProject implements Plugin<Project> {
 			).map(
 				ProjectDependency::getDependencyProject
 			).map(
-				LiferaySourceProject::getDependencyProjects
+				project -> getDependencyProjects(settings, project, alreadyChecked)
 			).flatMap(
 				Collection::stream
 			).forEach(
 				dependencyProjects::add
 			);
+			
+			
+
+			/*Set<Project> projects = new HashSet<Project>();
+			for (Project dependencyProject : dependencyProjects) {
+				projectsToAccumulate(settings, dependencyProject, projects, configurationContainers, alreadyChecked);
+				
+			}*/
+			
+
 		}
 	}
 	

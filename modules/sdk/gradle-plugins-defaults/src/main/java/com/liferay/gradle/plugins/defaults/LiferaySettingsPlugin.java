@@ -28,18 +28,30 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.Action;
 import org.gradle.api.GradleException;
@@ -56,12 +68,21 @@ import org.gradle.api.invocation.Gradle;
  */
 public class LiferaySettingsPlugin implements Plugin<Settings> {
 
-	private static Map<String, String> projectsMap = new HashMap<>();
+	protected static Map<String, String> projectsMap = new HashMap<>();
 	public static final String PROJECT_PATH_PREFIX_PROPERTY_NAME =
 		"project.path.prefix";
+	
+	private static boolean newRun = false;
 
 	@Override
 	public void apply(Settings settings) {
+		log("com.liferay.gradle.plugins.defaults.LiferaySettingsPlugin.apply called.");
+		log("liferay.project.paths is " + LiferaySourceProject.getLiferayProjectPathsProperty());
+		log("calculate.liferay.project.paths is " + LiferaySourceProject.getCalculateLiferayProjectPathsProperty());
+
+		log("projectsMap size is " + projectsMap.size());
+		
+		
 		File rootDir = settings.getRootDir();
 
 		Path rootDirPath = rootDir.toPath();
@@ -102,21 +123,14 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 				
 			}
 
-			if (LiferaySourceProject.getCalculateLiferayProjectPathsProperty() != null) {
-			
-                settings.getStartParameter().setConfigureOnDemand(true);
-                settings.getStartParameter().setParallelProjectExecutionEnabled(true);
-				calculateProjectPathsSpecified(settings, LiferaySourceProject.getCalculateLiferayProjectPathsProperty());
-				
-                System.clearProperty("calculate.liferay.project.paths");
-			}
+
 			
 			Collection<String> includedGradlePaths = new HashSet<>();
 			if (LiferaySourceProject.getLiferayProjectPathsProperty() != null) {
-				
-				if (!projectsMap.containsKey(LiferaySourceProject.getLiferayProjectPathsProperty())) {
+				log("LiferaySourceProject.getLiferayProjectPathsProperty [" + LiferaySourceProject.getLiferayProjectPathsProperty() + "] is not null. " + System.lineSeparator() + "Getting Gradle Paths.");
+				if (!projectsMap.containsKey("liferay.project.paths=" + LiferaySourceProject.getLiferayProjectPathsProperty())) {
 					includedGradlePaths.addAll(getIncludedGradlePaths(settings));
-				
+					System.clearProperty("calculate.liferay.project.paths");
 				settings.getStartParameter().setParallelProjectExecutionEnabled(true);
                 settings.getStartParameter().setConfigureOnDemand(true);
                 
@@ -128,7 +142,8 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
                 		sb.append(",");
                 	}
                 }
-                projectsMap.put(LiferaySourceProject.getLiferayProjectPathsProperty(), sb.toString());
+                
+                projectsMap.put("liferay.project.paths=" + LiferaySourceProject.getLiferayProjectPathsProperty(), sb.toString());
 				settings.getGradle().projectsEvaluated(
 					new Action<Gradle>() {
 						
@@ -138,7 +153,7 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 		                	@Override
 		                	public void execute(Gradle gradle) {
 		                		settings.getStartParameter().setConfigureOnDemand(true);
-		                		System.clearProperty("liferay.project.paths");
+		                		//System.clearProperty("liferay.project.paths");
 				                settings.getGradle().getTaskGraph().beforeTask(new Action<Task>() {
 				                	
 				                	@Override
@@ -151,7 +166,8 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 				                					
 				                					if (project != null) {
 				                						try {
-				                							GradleUtil.addTask(project, "outputRequiredProjectsTask", OutputRequiredProjectsTask.class, true);
+				                							OutputRequiredProjectsTask task2 = GradleUtil.addTask(project, "outputRequiredProjectsTask", OutputRequiredProjectsTask.class, true);
+				                							task2.setEnabled(false);
 				                						}
 				                						catch (Exception e) {
 				                							// Ignore
@@ -171,10 +187,12 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 					public void execute(BuildResult result) {
 						System.clearProperty("liferay.project.paths");
 					}
-				});*/
+				});
+				*/
 				}
+				
 				else {
-					String[] paths = projectsMap.get(LiferaySourceProject.getLiferayProjectPathsProperty()).split(",");
+					String[] paths = projectsMap.get("liferay.project.paths=" + LiferaySourceProject.getLiferayProjectPathsProperty()).split(",");
 					includedGradlePaths.addAll(Arrays.asList(paths));
 				}
 			}
@@ -191,47 +209,326 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 	}
 	private Collection<String> includedProjects = null;
 
+	private static boolean isParent(String pathToCheck, Collection<String> parentOfAnyPaths) {
+		for (String path : parentOfAnyPaths) {
+			if (path.startsWith(pathToCheck) && path.replace(":", "").length() >  pathToCheck.replace(":", "").length()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	//private static ExecutorService executor = Executors.newCachedThreadPool();
+	
 	private Collection<String> getIncludedGradlePaths(Settings settings) {
+		log("getIncludedGradlePaths called.");
 		if (includedProjects == null) {
-			includedProjects = new HashSet<>();
+			log("getIncludedGradlePaths includedProjects is null. Creating and filling a new one.");
+			includedProjects = Collections.synchronizedSet(new HashSet<>());
 			try {
-			Collection<String> args = new ArrayList<>(
-					Arrays.asList(
-						"sh", "gradlew", 
-						"-Dcalculate.liferay.project.paths=" + LiferaySourceProject.getLiferayProjectPathsProperty(), 
-						"-Dorg.gradle.configureondemand=true", 
-						"-Dorg.gradle.parallel=true", 
-						"-p", "modules",
-						":outputRequiredProjectsTask"));
-			
-				if (System.getProperty("liferay.gradle.debug") != null) {
-					args.add("-Dorg.gradle.debug=true");
-				}
+				String projectPaths = LiferaySourceProject._fixUpString(LiferaySourceProject.getLiferayProjectPathsProperty(), settings.getRootDir());
+
+				log("LiferaySourceProject._fixUpString called, producing " + projectPaths);
+				String[] paths = projectPaths.split(",");
+				Collection<String> pathsChecked = Collections.synchronizedSet(new HashSet<>());
 				
-					Process p = new ProcessBuilder(args.toArray(new String[0]))
-							.directory(settings.getRootDir().getParentFile())
-							.start();
-					p.waitFor();
-					String stderr= IOUtils.toString(p.getErrorStream());
-					String stdout = IOUtils.toString(p.getInputStream());
-					try (Scanner s = new Scanner(stdout)) {
-						while (s.hasNextLine()) {
-							String nextLine = s.nextLine();
-							if (nextLine.startsWith(":")) {
-								includedProjects.add(nextLine);
+				
+				try {
+					log("getIncludedGradlePaths calling getDependenciesOfPath for paths " + paths);
+					
+					Collection<String> results = getDependenciesOfPath(settings, pathsChecked, paths);
+
+					log("getIncludedGradlePaths returned getDependenciesOfPath for paths " + getArgsAsString(paths));
+					log("getIncludedGradlePaths returned getDependenciesOfPath " + results.size() + " paths.");
+					//return results;
+					//}, executor).thenAcceptAsync((e) -> 
+					includedProjects.addAll(results);//, executor));
+				} catch (InterruptedException e1) {
+					throw new RuntimeException(e1);
+				}
+				boolean runOnce = false;
+				long includedProjectSize = includedProjects.stream().filter(x -> !isParent(x, Arrays.asList(paths))).count();
+				log("initial includedProjectSize is " + includedProjectSize);
+				while (
+						Integer.parseInt(System.getProperty("liferay.gradle.search.depth", "2")) >= searchDepth.get()
+						 &&
+						
+						includedProjectSize > pathsChecked.size() && !Thread.currentThread().isInterrupted()) {
+					runOnce = true;
+
+					log("looping code: " + System.lineSeparator() + "while (includedProjectSize > pathsChecked.size() || futures.stream().filter(x -> !x.isDone()).count() > 0 && !Thread.currentThread().isInterrupted()) {");
+
+					log("acquiring lock");
+						log("lock acquired");
+						Collection<String> includedProjectsToIterate = Collections.synchronizedSet(new HashSet<>(includedProjects.stream().filter(x -> !isParent(x, Arrays.asList(paths))).collect(Collectors.toSet())));
+						
+						if (Thread.currentThread().isInterrupted()) {
+							//executor.shutdownNow();
+							throw new RuntimeException("Thread is interrupted");
+						}
+						Collection<String> stringsToCheck = Collections.synchronizedSet(new HashSet<>());
+						for (String projectString : includedProjectsToIterate) {
+							if (!pathsChecked.contains(projectString) && !isParent(projectString, Arrays.asList(paths))) {
+								stringsToCheck.add(projectString);
 							}
 						}
-					}
-					if (!stderr.trim().isEmpty()) {
-						throw new GradleException(stderr);
-					}
-			}
-			catch (Throwable th) {
-				throw new RuntimeException(th);
-			}
+						if (Thread.currentThread().isInterrupted()) {
+							log("Thread is interrupted. Shutting down now.");
+						
+							//executor.shutdownNow();
+							throw new RuntimeException("Thread is interrupted");
+						}
+						log("Adding includedProjectsToIterate[" + includedProjectsToIterate.size() + "] to includedProjects[" + includedProjects.size() + "]");
+						includedProjects.addAll(includedProjectsToIterate);
+						
+						try {
+							
+							
+							log("getIncludedGradlePaths 2 calling getDependenciesOfPath for paths " + stringsToCheck.toArray(new String[0]));
+							
+							Collection<String> results =  getDependenciesOfPath(settings, pathsChecked, stringsToCheck.toArray(new String[0]));
 
+							log("getIncludedGradlePaths 2 returned getDependenciesOfPath for paths " +stringsToCheck.toArray(new String[0]));
+							log("getIncludedGradlePaths 2 returned getDependenciesOfPath " + results.size() + " paths.");
+							includedProjects.addAll(results);
+						} catch (InterruptedException e1) {
+							Thread.currentThread().interrupt();
+							throw new RuntimeException(e1);
+						}
+					
+							
+						//log("Created Future with Identity Hash Code " + System.identityHashCode(f) + " and added to futures list.");
+
+						
+						if (Thread.currentThread().isInterrupted()) {
+							log("Thread is interrupted. Shutting down now 2.");
+							//executor.shutdownNow();
+							throw new RuntimeException("Thread is interrupted");
+						}
+						log("calculating includedProjectSize");
+
+						includedProjectSize = includedProjects.stream().filter(x -> !isParent(x, Arrays.asList(paths))).count();
+						log("includedProjectSize is " + includedProjectSize);
+						log("looped code: " + System.lineSeparator() + "while (includedProjectSize > pathsChecked.size() || futures.stream().filter(x -> !x.isDone()).count() > 0 && !Thread.currentThread().isInterrupted()) {");
+					
+						
+						try {
+							if (Integer.parseInt(System.getProperty("liferay.gradle.search.depth", "2")) > 
+							searchDepth.incrementAndGet()) {
+								break;
+							}
+						}
+						catch (Exception e) {
+							throw new RuntimeException(e);
+						}
+						
+				}
+				
+				if (!runOnce) {
+					log("Why didn't this run?!");
+					log("Is the depth right?");
+					log(String.valueOf(Integer.parseInt(System.getProperty("liferay.gradle.search.depth", "2")) >=
+						searchDepth.get()));
+					log("liferay.gradle.search.depth is " + String.valueOf(Integer.parseInt(System.getProperty("liferay.gradle.search.depth", "2")) +
+							" and searchDepth atomicInteger is " + searchDepth.get()));
+					log ("Are the project sizes right?");
+					log(String.valueOf(includedProjectSize > pathsChecked.size()));
+					log("Is the thread interrupted?");
+					log(String.valueOf(Thread.currentThread().isInterrupted()));
+					throw new RuntimeException();
+				}
+			}
+			catch (Throwable e) {
+				log(e.getMessage());
+				if (e instanceof InterruptedException) {
+					Thread.currentThread().interrupt();
+				}
+				throw new RuntimeException(e);
+			}
 		}
+		log("getIncludedGradlePaths returning includedProjects of size " + includedProjects.size());
 		return includedProjects;
+	}
+	private static Path logPath = Paths.get(System.getProperty("user.home"), "ecl.log");
+	protected static void log(String contents) {
+		try {
+        Path filePathObj = Paths.get(logPath.toUri());
+		
+		if (!newRun) {
+			newRun = true;
+			Files.deleteIfExists(filePathObj);
+			log("Deleting and recreating log.");
+		}
+        boolean fileExists = Files.exists(filePathObj);
+        if(!fileExists) {
+        	Files.createFile(filePathObj);
+        }
+        contents = "[Thread: " + Thread.currentThread().getId() + "] " + dateFormat.format(new Date()) + " :: " + contents + System.lineSeparator();
+        Files.write(filePathObj, contents.getBytes(), StandardOpenOption.APPEND);
+        
+		} catch (Throwable th) {
+			throw new RuntimeException(th);
+		}
+	}
+	private AtomicInteger searchDepth = new AtomicInteger() {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 6397404120036596948L;
+
+		{
+			try {
+				set(Integer.parseInt(System.getProperty("liferay.gradle.search.current.depth", "0")));
+				
+			}
+			catch (Throwable e) {
+				set(0);
+			}
+		}
+	};
+	private static DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+	private Collection<String> getDependenciesOfPath(Settings settings, Collection<String> pathsChecked, String... paths) throws InterruptedException {
+
+		log("getDependenciesOfPath called with paths size " + paths.length);
+		log("getDependenciesOfPath pathsChecked.size() = " + pathsChecked.size());
+		log("getDependenciesOfPath paths = " + getArgsAsString(paths));
+		
+		if (Thread.currentThread().isInterrupted()) {
+			throw new RuntimeException("Thread is interrupted");
+		}
+		Collection<String> includedProjects = new HashSet<>();
+
+		for (String path : paths) {
+			pathsChecked.add(path);
+		}
+		Collection<String> pathsToCheck =new HashSet<>();
+		if (LiferaySourceProject.getCalculateLiferayProjectPathsProperty() != null) {
+			
+			Collection<String> additionalProjectPaths = LiferaySourceProject._getSourceProjectDescriptors(settings, LiferaySourceProject.getCalculateLiferayProjectPathsProperty());
+			
+			// Skip anything that are parents of LiferaySourceProject.getCalculateLiferayProjectPathsProperty
+			for (String calculatePath : additionalProjectPaths) {
+
+				if (Thread.currentThread().isInterrupted()) {
+					throw new RuntimeException("Thread is interrupted");
+				}
+				for (String checkPath : paths) {
+					if (calculatePath.startsWith(checkPath) && calculatePath.length() > checkPath.length()) {
+						pathsToCheck.add(checkPath);
+						
+						
+						Project p = settings.getGradle().getRootProject().findProject(checkPath);
+						if (p != null) {
+						Map<String, Project> childProjects = p.getChildProjects();
+						
+						for (Project childProject : childProjects.values()) {
+							if (!pathsChecked.contains(childProject.getPath())) {
+								pathsChecked.add(childProject.getPath());
+								pathsToCheck.add(childProject.getPath());
+							}
+						}
+						}
+					}
+				}
+			}
+		}
+		if (pathsToCheck.isEmpty()) { 
+			pathsToCheck = Arrays.asList(paths);
+		}
+		Process p = null;
+		log("getDependenciesOfPath pathsToCheck[" + pathsToCheck.size() + "] = " + getArgsAsString(pathsToCheck));
+		if (Thread.currentThread().isInterrupted()) {
+			throw new RuntimeException("Thread is interrupted");
+		}
+		try {
+			
+			StringBuilder calculatePath = new StringBuilder();
+			Iterator<String> it = pathsToCheck.iterator();
+			while (it.hasNext()) {
+				String path = it.next();
+				calculatePath.append(path);
+				if (it.hasNext()) {
+					calculatePath.append(",");
+				}
+				
+			}
+			Collection<String> args = new ArrayList<>(
+					Arrays.asList(
+							"sh", "gradlew", 
+							"-Dcalculate.liferay.project.paths=" + calculatePath.toString(), 
+							"-Dorg.gradle.configureondemand=true", 
+							"-Dorg.gradle.parallel=true", 
+							"-Dliferay.gradle.search.current.depth=" + searchDepth.get(),
+							"-Dliferay.gradle.search.depth=" + System.getProperty("liferay.gradle.current.depth", "2"),
+							"-p", "modules"));
+			for (String pathToCheck : pathsToCheck) {
+				log("getDependenciesOfPath pathToCheck = " + pathToCheck);
+				args.add(pathToCheck + ":outputRequiredProjectsTask");// + (it.hasNext() ? " " : ""));
+			}
+			
+			
+			/*Iterator<String> it = Arrays.asList(paths).iterator();
+			while (it.hasNext()) {
+				String str = it.next();
+				args.add(str + ":outputRequiredProjectsTask");// + (it.hasNext() ? " " : ""));
+			}
+			*/
+			if (System.getProperty("liferay.gradle.debug") != null) {
+				args.add("-Dorg.gradle.debug=true");
+			}
+			
+			p = new ProcessBuilder(args.toArray(new String[0]))
+					.directory(settings.getRootDir().getParentFile())
+					.start();
+			log("getDependenciesOfPath about to wait for process. Args: [" + getArgsAsString(args) + "]");
+			p.waitFor();				
+			log("getDependenciesOfPath finishied waiting for process. Args: [" + getArgsAsString(args) + "]");
+			int exitValue = p.exitValue();
+			log("getDependenciesOfPath exit value of process is: " + exitValue);
+			String stderr= IOUtils.toString(p.getErrorStream());
+			String stdout = IOUtils.toString(p.getInputStream());
+			log("getDependenciesOfPath stdout is " + stdout);
+			log("getDependenciesOfPath stderr is " + stderr);
+			try (Scanner s = new Scanner(stdout)) {
+				while (s.hasNextLine()) {
+					String nextLine = s.nextLine();
+					if (nextLine.startsWith(":")) {
+						includedProjects.add(nextLine);
+					}
+				}
+			}
+			if (!stderr.trim().isEmpty()) {
+				//throw new GradleException(stderr);
+			}
+		}
+		catch (InterruptedException e) {
+			log("getDependenciesOfPath Exception: " + e.getClass().getName() + System.lineSeparator() + e.getMessage());
+			Thread.currentThread().interrupt();
+			throw e;
+		}
+		catch (Throwable th) {
+			log("getDependenciesOfPath Exception: " + th.getClass().getName() + System.lineSeparator() + th.getMessage());
+			try {
+				p.destroyForcibly();
+			}
+			catch (Throwable pth) {
+				
+			}
+			throw new RuntimeException(th);
+		}
+		
+		log("getDependenciesOfPath completed paths = " + getArgsAsString(paths));
+		log("getDependenciesOfPath completed and returning " + includedProjects.size());
+		return includedProjects;
+	}
+
+	private String getArgsAsString(Collection<String> args) {
+		return String.join(" ", args);
+
+	}
+	private String getArgsAsString(String...args) {
+		return String.join(",", Arrays.asList(args));
+
 	}
 
 	private String getProjectPathPrefix(Settings settings) {
@@ -253,24 +550,32 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 		return projectPathPrefix;
 	}
 
-	private void calculateProjectPathsSpecified(Settings settings, String sourceProperty) {
+	protected void calculateProjectPathsSpecified(Settings settings, String sourceProperty) {
 		settings.getGradle().beforeProject(new Action<Project>() {
-
+			
 			@Override
 			public void execute(Project project) {
 				// TODO Auto-generated method stub
 
-				GradleUtil.addTask(project, "outputRequiredProjectsTask", OutputRequiredProjectsTask.class, true);
+				OutputRequiredProjectsTask task = GradleUtil.addTask(project, "outputRequiredProjectsTask", OutputRequiredProjectsTask.class, true);
+				task.setEnabled(true);
 			}
 		});
-		settings.getGradle().projectsLoaded(new Action<Gradle>() {
+		settings.getGradle().projectsEvaluated(new Action<Gradle>() {
 		
 				@Override
 				public void execute(Gradle arg0) {
 					Collection<String> additionalProjectPaths = LiferaySourceProject._getSourceProjectDescriptors(settings, sourceProperty);
 					Collection<String> projectsAndDependencies = new HashSet<>();
 					Collection<String> projectsChecked = new HashSet<>();
-					projectsAndDependencies.addAll(ProjectDependencyGenerator.getProjectDependencies(settings, additionalProjectPaths.toArray(new String[0]), projectsChecked, true));
+					//projectsAndDependencies.addAll(ProjectDependencyGenerator.getProjectDependencies(settings, additionalProjectPaths.toArray(new String[0]), projectsChecked, true));
+					for (String path : additionalProjectPaths) {
+						Project project = arg0.getRootProject().findProject(path);
+						if (project != null) {
+							projectsAndDependencies.addAll(OutputRequiredProjectsTask.getProjectPaths(project, settings));
+						}
+					}
+					
 					
 					
 					for (String s : projectsAndDependencies) {

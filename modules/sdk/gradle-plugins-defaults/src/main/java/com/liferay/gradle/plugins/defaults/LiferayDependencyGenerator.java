@@ -84,56 +84,74 @@ public class LiferayDependencyGenerator extends LiferaySettingsPlugin implements
 	public void apply(final Settings settings) {
 		
 		SETTINGS = settings;
-		String projectPathsProperty = LiferaySourceProject.getLiferayProjectPathFilterProperty();
+		String projectPathsProperty = LiferaySourceProject.getCalculateLiferayProjectPathsProperty();
 		if (projectPathsProperty == null || "false".equals(projectPathsProperty.toLowerCase())) {
 			super.apply(settings);
 			
 			return;
 		}			
 		else {
+			
+			settings.getStartParameter().setConfigureOnDemand(false);
+			settings.getStartParameter().setParallelProjectExecutionEnabled(true);
+			calculateProjectPathsSpecified(settings, LiferaySourceProject.getCalculateLiferayProjectPathsProperty());
+			
+			//System.clearProperty("calculate.liferay.project.paths");
 			settings.getGradle().beforeProject(new Action<Project>() {
 
 				@Override
 				public void execute(Project project) {
 					// TODO Auto-generated method stub
-					GradleUtil.addTask(project, "outputRequiredProjectsTask", OutputRequiredProjectsTask.class, true);
-					
+					OutputRequiredProjectsTask task = GradleUtil.addTask(project, "outputRequiredProjectsTask", OutputRequiredProjectsTask.class, true);
+					task.setEnabled(false);
 				}
 			});
-		}
+			settings.getGradle().projectsEvaluated(new Action<Gradle>() {
+
+				@Override
+				public void execute(Gradle gradle) {
+					// TODO Auto-generated method stub
 			
-		settings.getStartParameter().setRefreshDependencies(true);
-		settings.getStartParameter().setSearchUpwards(true);
-		settings.getStartParameter().setConfigureOnDemand(true);
-		settings.getStartParameter().setRecompileScripts(true);
-		settings.getStartParameter().setRerunTasks(true);
-		settings.getStartParameter().setParallelProjectExecutionEnabled(false);
-		
-		
-		Gradle gradle = settings.getGradle();
-
-		File rootDir = settings.getRootDir();
-
-		Path rootDirPath = rootDir.toPath();
-
-		String projectPathPrefix = GradleUtil.getProperty(
-			settings, PROJECT_PATH_PREFIX_PROPERTY_NAME, "");
-
-		try {
-			Path projectPathRootDirPath = rootDirPath;
-
-			if (isPortalRootDirPath(rootDirPath)) {
-				projectPathRootDirPath = rootDirPath.resolve("modules");
+					Collection<String> projects = LiferaySourceProject._getSourceProjectDescriptors(settings, LiferaySourceProject.getLiferayProjectPathsProperty());
+				
+					for (String str : projects) {
+						System.out.println(str);
+					}
+				}
+			});
+			settings.getStartParameter().setRefreshDependencies(true);
+			settings.getStartParameter().setSearchUpwards(true);
+			settings.getStartParameter().setConfigureOnDemand(true);
+			settings.getStartParameter().setRecompileScripts(true);
+			settings.getStartParameter().setRerunTasks(true);
+			settings.getStartParameter().setParallelProjectExecutionEnabled(false);
+			
+			
+			Gradle gradle = settings.getGradle();
+	
+			File rootDir = settings.getRootDir();
+	
+			Path rootDirPath = rootDir.toPath();
+	
+			String projectPathPrefix = GradleUtil.getProperty(
+				settings, PROJECT_PATH_PREFIX_PROPERTY_NAME, "");
+	
+			try {
+				Path projectPathRootDirPath = rootDirPath;
+	
+				if (isPortalRootDirPath(rootDirPath)) {
+					projectPathRootDirPath = rootDirPath.resolve("modules");
+				}
+	
+				
+				gradle.beforeProject(this);
+				_includeProjects(
+					settings, projectPathRootDirPath, projectPathPrefix);
+				
 			}
-
-			
-			gradle.beforeProject(this);
-			_includeProjects(
-				settings, projectPathRootDirPath, projectPathPrefix);
-			
-		}
-		catch (IOException ioe) {
-			throw new UncheckedIOException(ioe);
+			catch (IOException ioe) {
+				throw new UncheckedIOException(ioe);
+			}
 		}
 	}
 	
@@ -408,381 +426,7 @@ public class LiferayDependencyGenerator extends LiferaySettingsPlugin implements
 
 		return projectsWithParents;
 	}
-
-	private Collection<ProjectDescriptor> _getSourceProjectDescriptors(
-		Settings settings) {
-
-		Collection<ProjectDescriptor> sourceProjects = new ArrayList<>();
-
-		try {
-			String projectPathsProperty = LiferaySourceProject.getLiferayProjectPathFilterProperty();
-
-			if (projectPathsProperty != null) {
-				if (!projectPathsProperty.isEmpty()) {
-					if (!projectPathsProperty.equals("false")) {
-
-						// Change the path separator to a comma (instead of semicolon),
-						// just in case someone is doing the correct Windows system behavior.
-						// (We can't do the unix variant (colon) because we support gradle paths
-
-						projectPathsProperty = projectPathsProperty.replace(
-							';', ',');
-						String[] projectPathsProperties =
-							projectPathsProperty.split(",");
-
-						for (String pathString : projectPathsProperties) {
-							try {
-								if (pathString.endsWith("\\") ||
-									pathString.endsWith("/")) {
-
-									pathString = pathString.substring(
-										0, pathString.length() - 1);
-								}
-
-								pathString = pathString.replace(
-									"/", File.separator);
-
-								boolean containsSlash = false;
-
-								if ((pathString.indexOf("/") > -1) ||
-									(pathString.indexOf("\\") > -1)) {
-
-									containsSlash = true;
-								}
-
-								boolean containsColon = pathString.contains(
-									":");
-
-								if (containsColon && containsSlash) {
-									throw new IllegalArgumentException(
-										"Path can't contain a : and a slash.");
-								}
-
-								if (containsColon) {
-									String prefixProperty = System.getProperty(
-										PROJECT_PATH_PREFIX_PROPERTY_NAME, "");
-
-									if (pathString.endsWith(":") &&
-										!pathString.startsWith(":")) {
-
-										// Fix the gradle path for the user
-
-										pathString =
-											":" + pathString.replace(":", "");
-									}
-
-									String fullPathString = pathString.replace(
-										prefixProperty, "");
-
-									int colonCount;
-
-									if (!prefixProperty.isEmpty()) {
-										fullPathString =
-											prefixProperty + ":" + pathString;
-										fullPathString = fullPathString.replace(
-											"::", ":");
-										fullPathString = fullPathString.replace(
-											"::", ":");
-										colonCount =
-											fullPathString.length() -
-												fullPathString.replace(
-													":", ""
-												).length();
-									}
-									else {
-										colonCount =
-											pathString.length() -
-												pathString.replace(
-													":", ""
-												).length();
-									}
-
-									if (colonCount == 1) {
-
-										// Probably the shorthand version, try to resolve
-										// against the full path. Otherwise, issue a warning and
-										// try to resolve against the project name without a colon.
-										// Throw an Exception if this fails.
-
-										ProjectDescriptor projectDescriptor =
-											settings.findProject(
-												fullPathString);
-
-										if (projectDescriptor == null) {
-											if (!Objects.equals(
-													pathString,
-													fullPathString)) {
-
-												// Try without the prefix property.
-
-												projectDescriptor =
-													settings.findProject(
-														pathString);
-											}
-
-											if (projectDescriptor == null) {
-
-												// Just loop through the model and find the projects we want.
-
-												Collection<Project>
-													desiredProjects =
-														_findProjectsEndingWith(
-															settings,
-															fullPathString);
-
-												if (desiredProjects.isEmpty()) {
-													desiredProjects =
-														_findProjectsEndingWith(
-															settings,
-															pathString);
-												}
-
-												if (desiredProjects.isEmpty()) {
-													throw new GradleException(
-														"Path not found in gradle model");
-												}
-
-												for (Project desiredProject :
-														desiredProjects) {
-
-													if (desiredProject !=
-															null) {
-
-														projectDescriptor =
-															settings.
-																findProject(
-																	desiredProject.
-																		getProjectDir());
-
-														if (projectDescriptor !=
-																null) {
-
-															sourceProjects.add(
-																projectDescriptor);
-														}
-
-														// Should we throw an exception here in an else case?
-
-													}
-												}
-											}
-											else {
-												sourceProjects.add(
-													projectDescriptor);
-											}
-										}
-										else {
-											sourceProjects.add(
-												projectDescriptor);
-										}
-									}
-									else {
-
-										// Multiple colons.
-										// Probably the full gradle path, try to resolve it. Otherwise,
-										// try to resolve against the end of the path.
-										// without a colon.
-										// Throw an Exception if this fails.
-
-										ProjectDescriptor projectDescriptor =
-											settings.findProject(
-												fullPathString);
-
-										if (projectDescriptor == null) {
-											projectDescriptor =
-												settings.findProject(
-													pathString);
-
-											if (projectDescriptor == null) {
-												Collection<Project>
-													desiredProjects =
-														_findProjectsEndingWith(
-															settings,
-															fullPathString);
-
-												if (desiredProjects.isEmpty()) {
-													desiredProjects =
-														_findProjectsEndingWith(
-															settings,
-															pathString);
-												}
-
-												if (desiredProjects.isEmpty()) {
-													throw new GradleException(
-														"Path not found in gradle model");
-												}
-
-												for (Project desiredProject :
-														desiredProjects) {
-
-													if (desiredProject !=
-															null) {
-
-														ProjectDescriptor
-															foundProjectDescriptor =
-																settings.
-																	findProject(
-																		desiredProject.
-																			getProjectDir());
-
-														if (foundProjectDescriptor !=
-																null) {
-
-															sourceProjects.add(
-																foundProjectDescriptor);
-														}
-													}
-												}
-											}
-											else {
-												sourceProjects.add(
-													projectDescriptor);
-											}
-										}
-										else {
-											sourceProjects.add(
-												projectDescriptor);
-										}
-									}
-								}
-								else if (containsSlash) {
-
-									// Fix up the possible directory string just in case.
-
-									pathString = _fixUpString(
-										pathString, settings.getRootDir());
-
-									// If the path contains a slash, try to find it in the gradle
-									// model. If it can't be found in the gradle model as a project,
-									// resolve the path itself against the root project path and
-									// ensure it exists. If it exists, search the gradle model.
-									// Otherwise, throw an Exception.
-
-									File projectDir = new File(pathString);
-
-									if (!projectDir.exists()) {
-
-										// Try to resolve against root directory.
-
-										File possibleProjectDir = new File(
-											settings.getRootDir(), pathString);
-
-										if (!possibleProjectDir.exists()) {
-
-											// Try to resolve against specified eclipse directory.
-
-											possibleProjectDir = new File(
-												settings.getStartParameter(
-												).getCurrentDir().getAbsoluteFile(),
-												pathString);
-										}
-
-										if (possibleProjectDir.exists()) {
-											if (!possibleProjectDir.
-													isDirectory()) {
-
-												throw new GradleException(
-													"Path must be a directory");
-											}
-
-											ProjectDescriptor
-												projectDescriptor =
-													settings.findProject(
-														possibleProjectDir.getAbsoluteFile());
-
-											if (projectDescriptor != null) {
-												sourceProjects.add(
-													projectDescriptor);
-											}
-											else {
-												throw new GradleException(
-													"Path not found in gradle model");
-											}
-										}
-										else {
-											throw new GradleException(
-												"Path must exist");
-										}
-									}
-									else if (!projectDir.isDirectory()) {
-										throw new GradleException(
-											"Path must be a directory");
-									}
-									else {
-
-										// The path exists and is a directory, now find the Gradle project.
-
-										ProjectDescriptor project =
-											settings.findProject(projectDir.getAbsoluteFile());
-
-										if (project != null) {
-											sourceProjects.add(project);
-										}
-										else {
-											throw new GradleException(
-												"Path not found in gradle model");
-										}
-									}
-								}
-								else {
-
-									// Try to resolve the project by name against the gradle model
-
-									Project foundProject = _findProjectWithName(
-										settings, pathString);
-
-									if (foundProject == null) {
-										throw new GradleException(
-											"Path not found in gradle model");
-									}
-
-									sourceProjects.add(
-										settings.findProject(
-											foundProject.getProjectDir().getAbsoluteFile()));
-								}
-							}
-							catch (Throwable th) {
-
-								// TODO: Warn or something here in Gradle.
-								// Also probably just skip this project and move on.
-
-							}
-						}
-					}
-					else {
-
-						// The user specified the value as false.
-						// Do nothing (maybe issue a warning?)
-
-					}
-				}
-				else {
-
-					// The property is specified but empty, so just resolve against the start parameter dir
-					// (Whatever directory was selected in Eclipse)
-
-					ProjectDescriptor pd = settings.findProject(
-						settings.getStartParameter(
-						).getCurrentDir().getAbsoluteFile());
-
-					if (pd != null) {
-						sourceProjects.add(
-							settings.findProject(pd.getProjectDir().getAbsoluteFile()));
-					}
-					else {
-						throw new GradleException(
-							"Path not found in gradle model");
-					}
-				}
-			}
-		}
-		catch (Throwable th) {
-			throw new RuntimeException(th);
-		}
-
-		return sourceProjects;
-	}
-
+	
 	private void _includeProjects(
 			final Settings settings, final Path projectPathRootDirPath,
 			final String projectPathPrefix)
@@ -808,6 +452,9 @@ public class LiferayDependencyGenerator extends LiferaySettingsPlugin implements
 				public FileVisitResult preVisitDirectory(
 					Path dirPath, BasicFileAttributes basicFileAttributes) {
 
+					if (Thread.currentThread().isInterrupted()) {
+						throw new RuntimeException("Thread was interrupted.");
+					}
 					if (dirPath.equals(projectPathRootDirPath)) {
 						return FileVisitResult.CONTINUE;
 					}

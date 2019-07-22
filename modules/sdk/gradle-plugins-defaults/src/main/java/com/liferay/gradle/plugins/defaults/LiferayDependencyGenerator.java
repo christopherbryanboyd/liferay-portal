@@ -121,10 +121,10 @@ public class LiferayDependencyGenerator extends LiferaySettingsPlugin implements
 			});
 			settings.getStartParameter().setRefreshDependencies(true);
 			settings.getStartParameter().setSearchUpwards(true);
-			settings.getStartParameter().setConfigureOnDemand(true);
+			settings.getStartParameter().setConfigureOnDemand(false);
 			settings.getStartParameter().setRecompileScripts(true);
 			settings.getStartParameter().setRerunTasks(true);
-			settings.getStartParameter().setParallelProjectExecutionEnabled(false);
+			settings.getStartParameter().setParallelProjectExecutionEnabled(true);
 			
 			
 			Gradle gradle = settings.getGradle();

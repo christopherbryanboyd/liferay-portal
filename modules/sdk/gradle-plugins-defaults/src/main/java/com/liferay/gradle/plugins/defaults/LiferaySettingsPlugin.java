@@ -50,6 +50,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
 import org.apache.commons.io.IOUtils;
@@ -68,7 +69,9 @@ import org.gradle.api.invocation.Gradle;
  */
 public class LiferaySettingsPlugin implements Plugin<Settings> {
 
-	protected static Map<String, String> projectsMap = new HashMap<>();
+	private static final String _DEFAULT_PROJECT_DEPTH = "0";
+
+	//protected static Map<String, String> projectsMap = new HashMap<>();
 	public static final String PROJECT_PATH_PREFIX_PROPERTY_NAME =
 		"project.path.prefix";
 	
@@ -80,7 +83,7 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 		log("liferay.project.paths is " + LiferaySourceProject.getLiferayProjectPathsProperty());
 		log("calculate.liferay.project.paths is " + LiferaySourceProject.getCalculateLiferayProjectPathsProperty());
 
-		log("projectsMap size is " + projectsMap.size());
+		//log("projectsMap size is " + projectsMap.size());
 		
 		
 		File rootDir = settings.getRootDir();
@@ -128,12 +131,13 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 			Collection<String> includedGradlePaths = new HashSet<>();
 			if (LiferaySourceProject.getLiferayProjectPathsProperty() != null) {
 				log("LiferaySourceProject.getLiferayProjectPathsProperty [" + LiferaySourceProject.getLiferayProjectPathsProperty() + "] is not null. " + System.lineSeparator() + "Getting Gradle Paths.");
-				if (!projectsMap.containsKey("liferay.project.paths=" + LiferaySourceProject.getLiferayProjectPathsProperty())) {
+				//if (!projectsMap.containsKey("liferay.project.paths=" + LiferaySourceProject.getLiferayProjectPathsProperty())) {
 					includedGradlePaths.addAll(getIncludedGradlePaths(settings));
-					System.clearProperty("calculate.liferay.project.paths");
+					//System.clearProperty("calculate.liferay.project.paths");
 				settings.getStartParameter().setParallelProjectExecutionEnabled(true);
                 settings.getStartParameter().setConfigureOnDemand(true);
-                
+
+    			//settings.getStartParameter().setConfigureOnDemand(false);
                 StringBuilder sb = new StringBuilder();
                 Iterator<String> it = includedGradlePaths.iterator();
                 while (it.hasNext()) {
@@ -143,7 +147,7 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
                 	}
                 }
                 
-                projectsMap.put("liferay.project.paths=" + LiferaySourceProject.getLiferayProjectPathsProperty(), sb.toString());
+               // projectsMap.put("liferay.project.paths=" + LiferaySourceProject.getLiferayProjectPathsProperty(), sb.toString());
 				settings.getGradle().projectsEvaluated(
 					new Action<Gradle>() {
 						
@@ -188,13 +192,13 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 						System.clearProperty("liferay.project.paths");
 					}
 				});
-				*/
+				
 				}
 				
 				else {
 					String[] paths = projectsMap.get("liferay.project.paths=" + LiferaySourceProject.getLiferayProjectPathsProperty()).split(",");
 					includedGradlePaths.addAll(Arrays.asList(paths));
-				}
+				}*/
 			}
 
 			_includeProjects(
@@ -218,7 +222,7 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 		return false;
 	}
 	
-	//private static ExecutorService executor = Executors.newCachedThreadPool();
+	private static ExecutorService executor = Executors.newCachedThreadPool();
 	
 	private Collection<String> getIncludedGradlePaths(Settings settings) {
 		log("getIncludedGradlePaths called.");
@@ -234,7 +238,7 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 				
 				
 				try {
-					log("getIncludedGradlePaths calling getDependenciesOfPath for paths " + paths);
+					log("getIncludedGradlePaths calling getDependenciesOfPath for paths " + getArgsAsString(paths));
 					
 					Collection<String> results = getDependenciesOfPath(settings, pathsChecked, paths);
 
@@ -246,16 +250,16 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 				} catch (InterruptedException e1) {
 					throw new RuntimeException(e1);
 				}
-				boolean runOnce = false;
 				long includedProjectSize = includedProjects.stream().filter(x -> !isParent(x, Arrays.asList(paths))).count();
 				log("initial includedProjectSize is " + includedProjectSize);
+				Collection<CompletableFuture<?>> futures = new HashSet<>();
+				
 				while (
-						Integer.parseInt(System.getProperty("liferay.gradle.search.depth", "2")) >= searchDepth.get()
+						Integer.parseInt(System.getProperty("liferay.gradle.search.depth", _DEFAULT_PROJECT_DEPTH)) > searchDepth.get()
 						 &&
 						
 						includedProjectSize > pathsChecked.size() && !Thread.currentThread().isInterrupted()) {
-					runOnce = true;
-
+					searchDepth.getAndIncrement();
 					log("looping code: " + System.lineSeparator() + "while (includedProjectSize > pathsChecked.size() || futures.stream().filter(x -> !x.isDone()).count() > 0 && !Thread.currentThread().isInterrupted()) {");
 
 					log("acquiring lock");
@@ -286,16 +290,23 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 							
 							log("getIncludedGradlePaths 2 calling getDependenciesOfPath for paths " + stringsToCheck.toArray(new String[0]));
 							
-							Collection<String> results =  getDependenciesOfPath(settings, pathsChecked, stringsToCheck.toArray(new String[0]));
+							futures.add(CompletableFuture.supplyAsync(() ->  {
+								try {
+									return getDependenciesOfPath(settings, pathsChecked, stringsToCheck.toArray(new String[0]));
+								} catch (InterruptedException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+								return null;
+							}, executor).thenAcceptAsync((e) -> includedProjects.addAll(e), executor));
 
 							log("getIncludedGradlePaths 2 returned getDependenciesOfPath for paths " +stringsToCheck.toArray(new String[0]));
-							log("getIncludedGradlePaths 2 returned getDependenciesOfPath " + results.size() + " paths.");
-							includedProjects.addAll(results);
-						} catch (InterruptedException e1) {
+							//log("getIncludedGradlePaths 2 returned getDependenciesOfPath " + results.size() + " paths.");
+							//includedProjects.addAll(results);
+						} catch (Throwable e1) {
 							Thread.currentThread().interrupt();
 							throw new RuntimeException(e1);
 						}
-					
 							
 						//log("Created Future with Identity Hash Code " + System.identityHashCode(f) + " and added to futures list.");
 
@@ -306,6 +317,19 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 							throw new RuntimeException("Thread is interrupted");
 						}
 						log("calculating includedProjectSize");
+						log("futures.size is " + futures.size());
+						
+						futures.stream().filter(x -> !x.isDone()).forEach(x -> {
+							try {
+								x.get();
+							} catch (InterruptedException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							} catch (ExecutionException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						});
 
 						includedProjectSize = includedProjects.stream().filter(x -> !isParent(x, Arrays.asList(paths))).count();
 						log("includedProjectSize is " + includedProjectSize);
@@ -313,8 +337,8 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 					
 						
 						try {
-							if (Integer.parseInt(System.getProperty("liferay.gradle.search.depth", "2")) > 
-							searchDepth.incrementAndGet()) {
+							if (Integer.parseInt(System.getProperty("liferay.gradle.search.depth", _DEFAULT_PROJECT_DEPTH)) > 
+							searchDepth.get()) {
 								break;
 							}
 						}
@@ -322,20 +346,6 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 							throw new RuntimeException(e);
 						}
 						
-				}
-				
-				if (!runOnce) {
-					log("Why didn't this run?!");
-					log("Is the depth right?");
-					log(String.valueOf(Integer.parseInt(System.getProperty("liferay.gradle.search.depth", "2")) >=
-						searchDepth.get()));
-					log("liferay.gradle.search.depth is " + String.valueOf(Integer.parseInt(System.getProperty("liferay.gradle.search.depth", "2")) +
-							" and searchDepth atomicInteger is " + searchDepth.get()));
-					log ("Are the project sizes right?");
-					log(String.valueOf(includedProjectSize > pathsChecked.size()));
-					log("Is the thread interrupted?");
-					log(String.valueOf(Thread.currentThread().isInterrupted()));
-					throw new RuntimeException();
 				}
 			}
 			catch (Throwable e) {
@@ -351,7 +361,7 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 	}
 	private static Path logPath = Paths.get(System.getProperty("user.home"), "ecl.log");
 	protected static void log(String contents) {
-		try {
+		/*try {
         Path filePathObj = Paths.get(logPath.toUri());
 		
 		if (!newRun) {
@@ -362,13 +372,14 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
         boolean fileExists = Files.exists(filePathObj);
         if(!fileExists) {
         	Files.createFile(filePathObj);
-        }
+        }*/
         contents = "[Thread: " + Thread.currentThread().getId() + "] " + dateFormat.format(new Date()) + " :: " + contents + System.lineSeparator();
-        Files.write(filePathObj, contents.getBytes(), StandardOpenOption.APPEND);
+        System.out.println(contents);
+        /*Files.write(filePathObj, contents.getBytes(), StandardOpenOption.APPEND);
         
 		} catch (Throwable th) {
 			throw new RuntimeException(th);
-		}
+		}*/
 	}
 	private AtomicInteger searchDepth = new AtomicInteger() {
 		/**
@@ -459,7 +470,7 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 							"-Dorg.gradle.configureondemand=true", 
 							"-Dorg.gradle.parallel=true", 
 							"-Dliferay.gradle.search.current.depth=" + searchDepth.get(),
-							"-Dliferay.gradle.search.depth=" + System.getProperty("liferay.gradle.current.depth", "2"),
+							"-Dliferay.gradle.search.depth=" + System.getProperty("liferay.gradle.current.depth", _DEFAULT_PROJECT_DEPTH),
 							"-p", "modules"));
 			for (String pathToCheck : pathsToCheck) {
 				log("getDependenciesOfPath pathToCheck = " + pathToCheck);
@@ -654,6 +665,10 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 		Settings settings, Path projectDirPath, Path projectPathRootDirPath,
 		String projectPathPrefix) {
 
+		log("_includeProject called");
+		log("_includeProject Path projectDirPath: " + projectDirPath);
+		log("_includeProject Path projectPathRootDirPath: " + projectPathRootDirPath);
+
 		Path relativePath = projectPathRootDirPath.relativize(projectDirPath);
 
 		String projectPath = relativePath.toString();
@@ -674,6 +689,11 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 			final String projectPathPrefix, Collection<String> includedGradlePaths)
 		throws IOException {
 
+		log("_includeprojects called with: ");
+		log("Path projectPathRootDirPath = " + projectPathRootDirPath.toString());
+		log("String projectPathPrefix = " + projectPathPrefix);
+		log("Collection<String> includedGradlePaths = " + getArgsAsString(includedGradlePaths));
+		
 		final Set<String> buildProfileFileNames =
 			GradlePluginsDefaultsUtil.getBuildProfileFileNames(
 				System.getProperty("build.profile"),
@@ -694,6 +714,7 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 				public FileVisitResult preVisitDirectory(
 					Path dirPath, BasicFileAttributes basicFileAttributes) {
 
+					//log("preVisitDirectory called with: " + dirPath.toString());
 					if (dirPath.equals(projectPathRootDirPath)) {
 						return FileVisitResult.CONTINUE;
 					}
@@ -750,12 +771,17 @@ public class LiferaySettingsPlugin implements Plugin<Settings> {
 							Path pathPath = Paths.get(stringPath);
 							
 							try {
-							if (Files.isSameFile(pathPath, dirPath)) {
-								_includeProject(
-									settings, dirPath, projectPathRootDirPath,
-									projectPathPrefix);
-								break;
-							}
+								if (Files.isSameFile(pathPath, dirPath) || pathPath.startsWith(dirPath)) {
+									log("isSameFile: " + pathPath.toString() + " - " +  dirPath.toString() + " - " + gradlePath);
+									_includeProject(
+										settings, dirPath, projectPathRootDirPath,
+										projectPathPrefix);
+									break;
+								}
+								else
+								{
+									//log("notSameFile: " + pathPath.toString() + " - " +  dirPath.toString());
+								}
 							}
 							catch (IOException e) {
 								throw new UncheckedIOException(e);

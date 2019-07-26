@@ -1,0 +1,9 @@
+task runGradleTest
+
+runGradleTest {
+	dependsOn ":modules:my-project:build"
+
+	doLast {
+		assert buildDir.list().length > 0
+	}
+}

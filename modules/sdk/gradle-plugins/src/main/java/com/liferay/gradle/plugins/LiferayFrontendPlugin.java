@@ -173,7 +173,7 @@ public class LiferayFrontendPlugin implements Plugin<Project> {
 		Copy copy = (Copy)GradleUtil.getTask(
 			project, LiferayBasePlugin.DEPLOY_TASK_NAME);
 
-		copy.dependsOn(BasePlugin.ASSEMBLE_TASK_NAME);
+		copy.dependsOn("build");
 		copy.from(_getJarFile(project));
 	}
 

@@ -3076,8 +3076,8 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 	private void _configureTaskCompileJSP(
 		Project project, Jar jarJSPsTask, LiferayExtension liferayExtension) {
 
-		boolean compileJspInclude = GradleUtil.getProperty(
-			project, JspCDefaultsPlugin.COMPILE_JSP_INCLUDE_PROPERTY_NAME,
+		boolean compileJspInclude= GradleUtil.getProperty(
+			project, JspCPlugin.COMPILE_JSP_INCLUDE_PROPERTY_NAME, false);
 			false);
 
 		if (!compileJspInclude) {
@@ -3250,7 +3250,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 		Project project, LiferayExtension liferayExtension) {
 
 		boolean compileJspInclude = GradleUtil.getProperty(
-			project, JspCDefaultsPlugin.COMPILE_JSP_INCLUDE_PROPERTY_NAME,
+			project, JspCPlugin.COMPILE_JSP_INCLUDE_PROPERTY_NAME, false);
 			false);
 
 		if (!compileJspInclude) {

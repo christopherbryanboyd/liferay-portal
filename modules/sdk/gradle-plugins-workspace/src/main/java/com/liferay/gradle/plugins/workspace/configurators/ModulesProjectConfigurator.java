@@ -73,16 +73,11 @@ public class ModulesProjectConfigurator extends BaseProjectConfigurator {
 
 	public ModulesProjectConfigurator(Settings settings) {
 		super(settings);
-
 		_defaultRepositoryEnabled = GradleUtil.getProperty(
 			settings,
 			WorkspacePlugin.PROPERTY_PREFIX + NAME +
 				".default.repository.enabled",
 			_DEFAULT_REPOSITORY_ENABLED);
-		_jspPrecompileEnabled = GradleUtil.getProperty(
-			settings,
-			WorkspacePlugin.PROPERTY_PREFIX + NAME + ".jsp.precompile.enabled",
-			_DEFAULT_JSP_PRECOMPILE_ENABLED);
 	}
 
 	@Override
@@ -120,8 +115,21 @@ public class ModulesProjectConfigurator extends BaseProjectConfigurator {
 
 					@Override
 					public void execute(Project project) {
-						_configureTaskCompileJSP(
-							compileJSPTask, _getWorkspaceExtension(project));
+						if (isJspPrecompileEnabled(project)) {
+							project.getExtensions().getExtraProperties().set("compile.jsp.include", "true");
+							
+							if (project.getRootProject() == null || project.getRootProject() == project) {
+								for (Project childProject : project.getAllprojects()) {
+									
+									if (!childProject.hasProperty("compile.jsp.include")) {
+										childProject.getExtensions().getExtraProperties().set("compile.jsp.include", "true");
+									}
+								}
+							}
+							_configureTaskCompileJSP(project,
+									compileJSPTask, _getWorkspaceExtension(project));
+						}
+						
 						_configureTaskTestIntegration(project);
 					}
 
@@ -175,8 +183,39 @@ public class ModulesProjectConfigurator extends BaseProjectConfigurator {
 		return _defaultRepositoryEnabled;
 	}
 
-	public boolean isJspPrecompileEnabled() {
-		return _jspPrecompileEnabled;
+	public Boolean isJspPrecompileEnabled(Project project) {
+		if (_jspPrecompileEnabled) {
+			return true;
+		}
+		
+		String[] propertyNames = {
+			WorkspacePlugin.PROPERTY_PREFIX + NAME + ".jsp.precompile.enabled", 
+			WorkspacePlugin.PROPERTY_PREFIX + NAME + ".compile.jsp.include",
+			"compile.jsp.include"
+		};
+		
+		Boolean jspPrecompileEnabled = null;
+		
+		if (project.hasProperty(propertyNames[0])) {
+			
+			jspPrecompileEnabled = GradleUtil.getProperty(project, propertyNames[0], _DEFAULT_JSP_PRECOMPILE_ENABLED);
+		}
+		else if (project.hasProperty(propertyNames[1])) {
+			
+			jspPrecompileEnabled = GradleUtil.getProperty(project ,propertyNames[1], _DEFAULT_JSP_PRECOMPILE_ENABLED);
+
+		}
+		else if (project.hasProperty(propertyNames[2])) {
+			jspPrecompileEnabled = GradleUtil.getProperty(project ,propertyNames[2], _DEFAULT_JSP_PRECOMPILE_ENABLED);
+
+		}
+		if (jspPrecompileEnabled == null) {
+			jspPrecompileEnabled = isJspPrecompileEnabled(project.getRootProject());
+			if (jspPrecompileEnabled == null) {
+				jspPrecompileEnabled = _DEFAULT_JSP_PRECOMPILE_ENABLED;
+			}
+		}		
+		return jspPrecompileEnabled;
 	}
 
 	public void setDefaultRepositoryEnabled(boolean defaultRepositoryEnabled) {
@@ -286,7 +325,7 @@ public class ModulesProjectConfigurator extends BaseProjectConfigurator {
 
 			});
 
-		if (isJspPrecompileEnabled()) {
+		/*if (isJspPrecompileEnabled()) {
 			copy.into(
 				new Closure<String>(project) {
 
@@ -304,7 +343,7 @@ public class ModulesProjectConfigurator extends BaseProjectConfigurator {
 					}
 
 				});
-		}
+		}*/
 	}
 
 	private void _configureRootTaskDistBundle(final Task buildTask) {
@@ -319,12 +358,13 @@ public class ModulesProjectConfigurator extends BaseProjectConfigurator {
 		copy.into("osgi/modules", _copyJarClosure(project, buildTask));
 	}
 
-	private void _configureTaskCompileJSP(
+	private void _configureTaskCompileJSP(Project project, 
 		JavaCompile compileJSPTask, WorkspaceExtension workspaceExtension) {
 
-		if (!isJspPrecompileEnabled()) {
+		if (!isJspPrecompileEnabled(project)) {
 			return;
 		}
+
 
 		File dir = new File(
 			workspaceExtension.getHomeDir(),
@@ -460,6 +500,7 @@ public class ModulesProjectConfigurator extends BaseProjectConfigurator {
 	private static final boolean _DEFAULT_REPOSITORY_ENABLED = true;
 
 	private boolean _defaultRepositoryEnabled;
-	private boolean _jspPrecompileEnabled;
+	
+	private boolean _jspPrecompileEnabled = false;
 
 }

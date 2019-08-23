@@ -94,7 +94,18 @@ public class ModulesProjectConfigurator extends BaseProjectConfigurator {
 
 		if (bndBndFile.exists() &&
 			(buildGradleFile.exists() || pomXmlFile.exists())) {
-
+			if (isJspPrecompileEnabled(project)) {
+				project.getExtensions().getExtraProperties().set("compile.jsp.include", "true");
+				
+				if (project.getRootProject() == null || project.getRootProject() == project) {
+					for (Project childProject : project.getAllprojects()) {
+						
+						if (!childProject.hasProperty("compile.jsp.include")) {
+							childProject.getExtensions().getExtraProperties().set("compile.jsp.include", "true");
+						}
+					}
+				}
+			}
 			GradleUtil.applyPlugin(project, LiferayOSGiPlugin.class);
 
 			if (FileUtil.exists(project, "service.xml")) {
@@ -115,22 +126,14 @@ public class ModulesProjectConfigurator extends BaseProjectConfigurator {
 
 					@Override
 					public void execute(Project project) {
+
 						if (isJspPrecompileEnabled(project)) {
-							project.getExtensions().getExtraProperties().set("compile.jsp.include", "true");
-							
-							if (project.getRootProject() == null || project.getRootProject() == project) {
-								for (Project childProject : project.getAllprojects()) {
-									
-									if (!childProject.hasProperty("compile.jsp.include")) {
-										childProject.getExtensions().getExtraProperties().set("compile.jsp.include", "true");
-									}
-								}
-							}
 							_configureTaskCompileJSP(project,
 									compileJSPTask, _getWorkspaceExtension(project));
 						}
-						
 						_configureTaskTestIntegration(project);
+						
+						
 					}
 
 				});
@@ -196,17 +199,17 @@ public class ModulesProjectConfigurator extends BaseProjectConfigurator {
 		
 		Boolean jspPrecompileEnabled = null;
 		
-		if (project.hasProperty(propertyNames[0])) {
+		if (project.hasProperty(propertyNames[2])) {
 			
-			jspPrecompileEnabled = GradleUtil.getProperty(project, propertyNames[0], _DEFAULT_JSP_PRECOMPILE_ENABLED);
+			jspPrecompileEnabled = GradleUtil.getProperty(project, propertyNames[2], _DEFAULT_JSP_PRECOMPILE_ENABLED);
 		}
 		else if (project.hasProperty(propertyNames[1])) {
 			
 			jspPrecompileEnabled = GradleUtil.getProperty(project ,propertyNames[1], _DEFAULT_JSP_PRECOMPILE_ENABLED);
 
 		}
-		else if (project.hasProperty(propertyNames[2])) {
-			jspPrecompileEnabled = GradleUtil.getProperty(project ,propertyNames[2], _DEFAULT_JSP_PRECOMPILE_ENABLED);
+		else if (project.hasProperty(propertyNames[0])) {
+			jspPrecompileEnabled = GradleUtil.getProperty(project ,propertyNames[0], _DEFAULT_JSP_PRECOMPILE_ENABLED);
 
 		}
 		if (jspPrecompileEnabled == null) {

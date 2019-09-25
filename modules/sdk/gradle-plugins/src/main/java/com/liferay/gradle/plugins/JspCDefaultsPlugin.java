@@ -42,6 +42,7 @@ import org.gradle.api.tasks.util.PatternFilterable;
 
 /**
  * @author Andrea Di Giorgi
+ * @author TEST
  */
 public class JspCDefaultsPlugin extends BaseDefaultsPlugin<JspCPlugin> {
 

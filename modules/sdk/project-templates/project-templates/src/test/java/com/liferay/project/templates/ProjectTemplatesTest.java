@@ -2561,15 +2561,15 @@ public class ProjectTemplatesTest implements BaseProjectTemplatesTestCase {
 
 		if (_isBuildProjects()) {
 			executeGradle(
-				workspaceDir, _gradleDistribution,
+				workspaceDir, true, _gradleDistribution,
 				":modules:foo:foo-service" + _GRADLE_TASK_PATH_BUILD_SERVICE);
 
 			executeGradle(
-				workspaceDir, _gradleDistribution,
+				workspaceDir, true, _gradleDistribution,
 				":modules:foo:foo-api:build");
 
 			executeGradle(
-				workspaceDir, _gradleDistribution,
+				workspaceDir,true, _gradleDistribution,
 				":modules:foo:foo-service:build");
 		}
 	}

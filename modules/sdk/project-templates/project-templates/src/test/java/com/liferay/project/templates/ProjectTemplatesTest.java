@@ -59,6 +59,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.compress.archivers.zip.ZipFile;
+
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -79,9 +80,6 @@ import org.w3c.dom.Text;
  * @author Andrea Di Giorgi
  */
 public class ProjectTemplatesTest implements BaseProjectTemplatesTestCase {
-
-	@Rule
-	public final GradleRunnerTestRule GradleRunnerTestRule = new GradleRunnerTestRule();
 
 	@ClassRule
 	public static final MavenExecutor mavenExecutor = new MavenExecutor();
@@ -2571,7 +2569,7 @@ public class ProjectTemplatesTest implements BaseProjectTemplatesTestCase {
 				":modules:foo:foo-api:build");
 
 			executeGradle(
-				workspaceDir,true, _gradleDistribution,
+				workspaceDir, true, _gradleDistribution,
 				":modules:foo:foo-service:build");
 		}
 	}
@@ -3937,6 +3935,10 @@ public class ProjectTemplatesTest implements BaseProjectTemplatesTestCase {
 
 		Assert.assertEquals(customTemplatesMap.size(), templatesMap.size() + 1);
 	}
+
+	@Rule
+	public final GradleRunnerTestRule gradleRunnerTestRule =
+		new GradleRunnerTestRule();
 
 	@Rule
 	public final TemporaryFolder temporaryFolder = new TemporaryFolder();

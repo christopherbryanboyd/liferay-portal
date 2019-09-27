@@ -59,7 +59,6 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.compress.archivers.zip.ZipFile;
-
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -80,6 +79,9 @@ import org.w3c.dom.Text;
  * @author Andrea Di Giorgi
  */
 public class ProjectTemplatesTest implements BaseProjectTemplatesTestCase {
+
+	@Rule
+	public final GradleRunnerTestRule GradleRunnerTestRule = new GradleRunnerTestRule();
 
 	@ClassRule
 	public static final MavenExecutor mavenExecutor = new MavenExecutor();

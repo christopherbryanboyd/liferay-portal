@@ -313,6 +313,21 @@ public class ModulesProjectConfigurator extends BaseProjectConfigurator {
 			project,
 			TestIntegrationBasePlugin.TEST_INTEGRATION_TASK_NAME + "Classes");
 
+		Task setupTestableTomcatTask = GradleUtil.getTask(
+			project, "setUpTestableTomcat");
+
+		Project rootProject = project.getRootProject();
+
+		File rootProjectDir = rootProject.getProjectDir();
+
+		File bundlesFile = new File(rootProjectDir, "bundles");
+
+		if (!bundlesFile.exists()) {
+			Task initBundleTask = GradleUtil.getTask(rootProject, "initBundle");
+
+			setupTestableTomcatTask.dependsOn(initBundleTask);
+		}
+
 		testIntegrationClassesTask.doLast(
 			new Action<Task>() {
 

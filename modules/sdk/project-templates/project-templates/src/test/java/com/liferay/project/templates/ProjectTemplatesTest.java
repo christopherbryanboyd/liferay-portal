@@ -1333,12 +1333,14 @@ public class ProjectTemplatesTest implements BaseProjectTemplatesTestCase {
 			gradleProjectDir, "build.gradle", _DEPENDENCY_PORTAL_KERNEL + "\n");
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateNpmAngularPortlet70() throws Exception {
 		_testBuildTemplateNpmAngular70(
 			"npm-angular-portlet", "foo", "foo", "Foo");
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateNpmAngularPortlet71() throws Exception {
 		_testBuildTemplateNpmAngular71(
@@ -1350,6 +1352,7 @@ public class ProjectTemplatesTest implements BaseProjectTemplatesTestCase {
 		_testBuildTemplateNpmProject72("npm-angular-portlet");
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateNpmAngularPortletWithDashes70()
 		throws Exception {
@@ -1358,6 +1361,7 @@ public class ProjectTemplatesTest implements BaseProjectTemplatesTestCase {
 			"npm-angular-portlet", "foo-bar", "foo.bar", "FooBar");
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateNpmAngularPortletWithDashes71()
 		throws Exception {
@@ -3090,6 +3094,7 @@ public class ProjectTemplatesTest implements BaseProjectTemplatesTestCase {
 			"--dependency-management-enabled");
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateTheme70() throws Exception {
 		File gradleProjectDir = _buildTemplateWithGradle(
@@ -3227,6 +3232,7 @@ public class ProjectTemplatesTest implements BaseProjectTemplatesTestCase {
 		_buildProjects(gradleProjectDir, mavenProjectDir);
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateThemeContributorCustom72() throws Exception {
 		File gradleProjectDir = _buildTemplateWithGradle(
@@ -3260,6 +3266,7 @@ public class ProjectTemplatesTest implements BaseProjectTemplatesTestCase {
 		_buildProjects(gradleProjectDir, mavenProjectDir);
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateThemeContributorDefaults() throws Exception {
 		File gradleProjectDir = _buildTemplateWithGradle(
@@ -3281,6 +3288,7 @@ public class ProjectTemplatesTest implements BaseProjectTemplatesTestCase {
 			"--dependency-management-enabled");
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateThemeInWorkspace() throws Exception {
 		File gradleProjectDir = _buildTemplateWithGradle("theme", "theme-test");

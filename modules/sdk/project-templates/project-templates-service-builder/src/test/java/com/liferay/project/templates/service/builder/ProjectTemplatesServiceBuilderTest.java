@@ -40,6 +40,7 @@ import java.util.regex.Pattern;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -72,6 +73,7 @@ public class ProjectTemplatesServiceBuilderTest
 		_gradleDistribution = URI.create(gradleDistribution);
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateContentDTDVersionServiceBuilder70()
 		throws Exception {
@@ -84,6 +86,7 @@ public class ProjectTemplatesServiceBuilderTest
 			"liferay-service-builder_7_0_0.dtd");
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateContentDTDVersionServiceBuilder71()
 		throws Exception {
@@ -96,6 +99,7 @@ public class ProjectTemplatesServiceBuilderTest
 			"liferay-service-builder_7_1_0.dtd");
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateContentDTDVersionServiceBuilder72()
 		throws Exception {
@@ -108,6 +112,7 @@ public class ProjectTemplatesServiceBuilderTest
 			"liferay-service-builder_7_2_0.dtd");
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateServiceBuilder70() throws Exception {
 		String name = "guestbook";
@@ -145,6 +150,7 @@ public class ProjectTemplatesServiceBuilderTest
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateServiceBuilder71() throws Exception {
 		String name = "guestbook";
@@ -180,6 +186,7 @@ public class ProjectTemplatesServiceBuilderTest
 			packageName, "");
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateServiceBuilder72() throws Exception {
 		String name = "guestbook";
@@ -226,6 +233,7 @@ public class ProjectTemplatesServiceBuilderTest
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateServiceBuilder72Spring() throws Exception {
 		String name = "guestbook";
@@ -269,6 +277,7 @@ public class ProjectTemplatesServiceBuilderTest
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateServiceBuilderCheckExports() throws Exception {
 		String name = "guestbook";
@@ -326,6 +335,7 @@ public class ProjectTemplatesServiceBuilderTest
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateServiceBuilderNestedPath70() throws Exception {
 		File workspaceProjectDir = _buildTemplateWithGradle(
@@ -355,6 +365,7 @@ public class ProjectTemplatesServiceBuilderTest
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateServiceBuilderNestedPath71() throws Exception {
 		File workspaceProjectDir = _buildTemplateWithGradle(
@@ -384,6 +395,7 @@ public class ProjectTemplatesServiceBuilderTest
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateServiceBuilderNestedPath72() throws Exception {
 		File workspaceProjectDir = _buildTemplateWithGradle(
@@ -413,6 +425,7 @@ public class ProjectTemplatesServiceBuilderTest
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateServiceBuilderTargetPlatformEnabled70()
 		throws Exception {
@@ -458,6 +471,7 @@ public class ProjectTemplatesServiceBuilderTest
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateServiceBuilderTargetPlatformEnabled71()
 		throws Exception {
@@ -503,6 +517,7 @@ public class ProjectTemplatesServiceBuilderTest
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateServiceBuilderTargetPlatformEnabled72()
 		throws Exception {
@@ -549,6 +564,7 @@ public class ProjectTemplatesServiceBuilderTest
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateServiceBuilderWithDashes70() throws Exception {
 		String name = "backend-integration";
@@ -576,6 +592,7 @@ public class ProjectTemplatesServiceBuilderTest
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateServiceBuilderWithDashes71() throws Exception {
 		String name = "backend-integration";
@@ -603,6 +620,7 @@ public class ProjectTemplatesServiceBuilderTest
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateServiceBuilderWithDashes72() throws Exception {
 		String name = "backend-integration";
@@ -630,6 +648,7 @@ public class ProjectTemplatesServiceBuilderTest
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testCompareServiceBuilderPluginVersions() throws Exception {
 		String name = "sample";

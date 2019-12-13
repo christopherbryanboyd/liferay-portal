@@ -38,6 +38,7 @@ import java.util.Properties;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -67,6 +68,7 @@ public class ProjectTemplatesModulesExtTest
 		_gradleDistribution = URI.create(gradleDistribution);
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateModuleExt() throws Exception {
 		File gradleProjectDir = _buildTemplateWithGradle(
@@ -98,6 +100,7 @@ public class ProjectTemplatesModulesExtTest
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateModuleExtInWorkspace() throws Exception {
 		File workspaceDir = buildWorkspace(temporaryFolder);
@@ -129,6 +132,7 @@ public class ProjectTemplatesModulesExtTest
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateModulesExtGradle() throws Exception {
 		File gradleProjectDir = _buildTemplateWithGradle(
@@ -155,6 +159,7 @@ public class ProjectTemplatesModulesExtTest
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateModulesExtMaven() throws Exception {
 		String groupId = "com.test";

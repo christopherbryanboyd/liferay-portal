@@ -28,6 +28,7 @@ import java.util.Properties;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -57,6 +58,7 @@ public class ProjectTemplatesServiceWrapperTest
 		_gradleDistribution = URI.create(gradleDistribution);
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateServiceWrapper70() throws Exception {
 		File gradleProjectDir = _buildTemplateWithGradle(
@@ -92,6 +94,7 @@ public class ProjectTemplatesServiceWrapperTest
 			mavenProjectDir);
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateServiceWrapper71() throws Exception {
 		File gradleProjectDir = _buildTemplateWithGradle(
@@ -116,6 +119,7 @@ public class ProjectTemplatesServiceWrapperTest
 			mavenProjectDir);
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateServiceWrapper72() throws Exception {
 		File gradleProjectDir = _buildTemplateWithGradle(
@@ -140,6 +144,7 @@ public class ProjectTemplatesServiceWrapperTest
 			mavenProjectDir);
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateServiceWrapperInWorkspace() throws Exception {
 		File workspaceDir = buildWorkspace(temporaryFolder);

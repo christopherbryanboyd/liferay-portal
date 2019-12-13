@@ -35,6 +35,7 @@ import java.util.Properties;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -64,6 +65,7 @@ public class ProjectTemplatesServiceTest
 		_gradleDistribution = URI.create(gradleDistribution);
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateService70() throws Exception {
 		File gradleProjectDir = _buildTemplateWithGradle(
@@ -95,6 +97,7 @@ public class ProjectTemplatesServiceTest
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateService71() throws Exception {
 		File gradleProjectDir = _buildTemplateWithGradle(
@@ -124,6 +127,7 @@ public class ProjectTemplatesServiceTest
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateService72() throws Exception {
 		File gradleProjectDir = _buildTemplateWithGradle(
@@ -153,6 +157,7 @@ public class ProjectTemplatesServiceTest
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateServiceInWorkspace() throws Exception {
 		File workspaceDir = buildWorkspace(temporaryFolder);

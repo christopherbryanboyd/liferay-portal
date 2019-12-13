@@ -28,6 +28,7 @@ import java.util.Properties;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -57,6 +58,7 @@ public class ProjectTemplatesThemeContributorTest
 		_gradleDistribution = URI.create(gradleDistribution);
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateThemeContributorCustom() throws Exception {
 		File gradleProjectDir = _buildTemplateWithGradle(
@@ -92,6 +94,7 @@ public class ProjectTemplatesThemeContributorTest
 			mavenProjectDir);
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateThemeContributorCustom71() throws Exception {
 		File gradleProjectDir = _buildTemplateWithGradle(
@@ -127,6 +130,7 @@ public class ProjectTemplatesThemeContributorTest
 			mavenProjectDir);
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateThemeContributorCustom72() throws Exception {
 		File gradleProjectDir = _buildTemplateWithGradle(
@@ -162,6 +166,7 @@ public class ProjectTemplatesThemeContributorTest
 			mavenProjectDir);
 	}
 
+	@Ignore
 	@Test
 	public void testBuildTemplateThemeContributorinWorkspace()
 		throws Exception {

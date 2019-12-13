@@ -87,8 +87,7 @@ import org.w3c.dom.Text;
  */
 public interface BaseProjectTemplatesTestCase {
 
-	public static final String BUILD_PROJECTS = System.getProperty(
-		"project.templates.test.builds");
+	public static final String BUILD_PROJECTS = "true";
 
 	public static final String BUNDLES_DIFF_IGNORES = StringTestUtil.merge(
 		Arrays.asList(
@@ -587,12 +586,8 @@ public interface BaseProjectTemplatesTestCase {
 			arguments.add("-Dhttp.proxyPort=" + httpProxyPort);
 		}
 
-		if (debug) {
-			arguments.add("--debug");
-		}
-		else {
-			arguments.add("--stacktrace");
-		}
+		arguments.add("--info");
+		arguments.add("--scan");
 
 		for (String taskPath : taskPaths) {
 			arguments.add(taskPath);
@@ -602,9 +597,7 @@ public interface BaseProjectTemplatesTestCase {
 
 		StringWriter stringWriter = new StringWriter();
 
-		if (debug) {
-			gradleRunner.forwardStdOutput(stringWriter);
-		}
+		gradleRunner.forwardStdOutput(stringWriter);
 
 		gradleRunner.withArguments(arguments);
 
@@ -634,10 +627,9 @@ public interface BaseProjectTemplatesTestCase {
 			}
 		}
 
-		if (debug) {
-			stdOutput = stringWriter.toString();
-			stringWriter.close();
-		}
+		stdOutput = stringWriter.toString();
+
+		stringWriter.close();
 
 		return Optional.ofNullable(stdOutput);
 	}
@@ -655,7 +647,14 @@ public interface BaseProjectTemplatesTestCase {
 			File projectDir, URI gradleDistribution, String... taskPaths)
 		throws IOException {
 
-		executeGradle(projectDir, false, gradleDistribution, taskPaths);
+		Optional<String> optionalOutput = executeGradle(
+			projectDir, false, gradleDistribution, taskPaths);
+
+		String output = optionalOutput.get();
+
+		System.out.println(output);
+
+		System.err.println(output);
 	}
 
 	public default String executeMaven(
@@ -744,13 +743,10 @@ public interface BaseProjectTemplatesTestCase {
 		testNotContains(
 			workspaceProjectDir, "build.gradle", "version: \"[0-9].*");
 
-		if (isBuildProjects()) {
-			executeGradle(
-				workspaceDir, gradleDistribution,
-				":modules:" + name + ":build");
+		executeGradle(
+			workspaceDir, gradleDistribution, ":modules:" + name + ":build");
 
-			testExists(workspaceProjectDir, jarFilePath);
-		}
+		testExists(workspaceProjectDir, jarFilePath);
 
 		return workspaceProjectDir;
 	}

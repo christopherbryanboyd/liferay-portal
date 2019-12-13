@@ -594,8 +594,10 @@ public interface BaseProjectTemplatesTestCase {
 		String stdOutput = null;
 
 		StringWriter stringWriter = new StringWriter();
+		StringWriter stringWriterErr = new StringWriter();
 
 		gradleRunner.forwardStdOutput(stringWriter);
+		gradleRunner.forwardStdError(stringWriterErr);
 
 		gradleRunner.withArguments(arguments);
 
@@ -604,30 +606,16 @@ public interface BaseProjectTemplatesTestCase {
 
 		BuildResult buildResult = null;
 
-		//if (buildAndFail) {
 		buildResult = gradleRunner.buildAndFail();
 
-		stdOutput = buildResult.getOutput();
-		/*}
-		else {
-			buildResult = gradleRunner.build();
-
-			for (String taskPath : taskPaths) {
-				BuildTask buildTask = buildResult.task(taskPath);
-
-				Assert.assertNotNull(
-					"Build task \"" + taskPath + "\" not found", buildTask);
-
-				Assert.assertEquals(
-					"Unexpected outcome for task \"" + buildTask.getPath() +
-						"\"",
-					TaskOutcome.SUCCESS, buildTask.getOutcome());
-			}
-		}*/
-
-		stdOutput = stringWriter.toString();
+		stdOutput =
+			buildResult.getOutput() + System.lineSeparator() +
+				stringWriter.toString() + System.lineSeparator() +
+					stringWriterErr.toString();
 
 		stringWriter.close();
+
+		stringWriterErr.close();
 
 		return Optional.ofNullable(stdOutput);
 	}

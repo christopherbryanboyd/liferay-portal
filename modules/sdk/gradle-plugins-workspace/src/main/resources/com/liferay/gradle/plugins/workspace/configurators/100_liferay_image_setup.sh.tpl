@@ -15,19 +15,29 @@ function copy_configs {
 }
 
 function copy_and_remove_scripts {
-	echo "[LIFERAY] Copying /home/liferay/configs/${LIFERAY_WORKSPACE_ENVIRONMENT}/scripts files:"
-	echo ""
+	workspace_scripts=false
 
-	tree --noreport /home/liferay/configs/${LIFERAY_WORKSPACE_ENVIRONMENT}/scripts
+	WORKSPACE_SCRIPTS_DIR="/home/liferay/configs/${LIFERAY_WORKSPACE_ENVIRONMENT}/scripts"
 
-	echo ""
-	echo "[LIFERAY] ... into ${LIFERAY_MOUNT_DIR}/scripts"
+	if [ -d "$WORKSPACE_SCRIPTS_DIR" ] && [ "$(ls -A $WORKSPACE_SCRIPTS_DIR)" ]; then
+		workspace_scripts=true
+
+		echo "[LIFERAY] Copying $WORKSPACE_SCRIPTS_DIR files:"
+		echo ""
+
+		tree --noreport "$WORKSPACE_SCRIPTS_DIR"
+	fi
 
 	mkdir -p ${LIFERAY_MOUNT_DIR}/scripts
 
-	cp -r /home/liferay/configs/${LIFERAY_WORKSPACE_ENVIRONMENT}/scripts/* ${LIFERAY_MOUNT_DIR}/scripts
+	if [ "$workspace_scripts" == true ]; then
+		echo ""
+		echo "[LIFERAY] ... into ${LIFERAY_MOUNT_DIR}/scripts"
 
-	rm -rf /home/liferay/configs/${LIFERAY_WORKSPACE_ENVIRONMENT}/scripts
+		cp -r "$WORKSPACE_SCRIPTS_DIR"/* ${LIFERAY_MOUNT_DIR}/scripts
+
+		rm -rf "$WORKSPACE_SCRIPTS_DIR"
+	fi
 
 	echo ""
 }
